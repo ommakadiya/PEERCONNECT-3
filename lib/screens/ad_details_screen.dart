@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:peerconnect/models/ad.dart';
 import 'package:peerconnect/utils/constants.dart';
-import 'package:intl/intl.dart';
 
 class AdDetailsScreen extends StatelessWidget {
   final Ad ad;
@@ -10,7 +9,7 @@ class AdDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('MMM dd, yyyy');
+    final String dateStr = '${ad.endDate.year}-${ad.endDate.month.toString().padLeft(2, '0')}-${ad.endDate.day.toString().padLeft(2, '0')}';
 
     return Scaffold(
       backgroundColor: AppConstants.backgroundColor,
@@ -106,7 +105,7 @@ class AdDetailsScreen extends StatelessWidget {
                       children: [
                         _buildInfoRow(Icons.public, 'Target Country', ad.targetCountry),
                         const Divider(color: AppConstants.surfaceDark, height: 24),
-                        _buildInfoRow(Icons.calendar_today, 'Valid Until', dateFormat.format(ad.endDate)),
+                        _buildInfoRow(Icons.calendar_today, 'Valid Until', dateStr),
                         const Divider(color: AppConstants.surfaceDark, height: 24),
                         _buildInfoRow(Icons.thumb_up_alt_outlined, 'Likes', '${ad.likes.length} people like this'),
                       ],

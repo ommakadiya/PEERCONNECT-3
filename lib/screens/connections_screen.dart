@@ -119,9 +119,12 @@ class _ConnectionsScreenState extends State<ConnectionsScreen>
     return Container(
       decoration: const BoxDecoration(gradient: AppConstants.backgroundGradient),
       child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 800),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
             // ── Header ────────────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
@@ -267,6 +270,8 @@ class _ConnectionsScreenState extends State<ConnectionsScreen>
               ),
             ),
           ],
+            ),
+          ),
         ),
       ),
     );

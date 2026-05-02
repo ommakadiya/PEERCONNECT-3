@@ -173,19 +173,25 @@ class _ChildProfileSetupScreenState extends State<ChildProfileSetupScreen> {
                 // ── Submit Button ──
                 SizedBox(
                   width: double.infinity,
-                  height: 48,
+                  height: 52,
                   child: ElevatedButton(
                     onPressed: _isSubmitting ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: AppConstants.secondaryColor,
+                      foregroundColor: AppConstants.backgroundColor,
                       padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingMd),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
+                      ),
+                      elevation: 4,
                     ),
                     child: _isSubmitting
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: AppConstants.textPrimary),
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppConstants.backgroundColor),
                           )
-                        : const Text('Complete Setup', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                        : const Text('Complete Setup', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppConstants.backgroundColor)),
                   ),
                 ),
                 const SizedBox(height: AppConstants.paddingXl),
@@ -210,7 +216,7 @@ class _ChildProfileSetupScreenState extends State<ChildProfileSetupScreen> {
       decoration: BoxDecoration(
         color: AppConstants.surfaceCard,
         borderRadius: BorderRadius.circular(AppConstants.borderRadiusLg),
-        border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.2)),
+        border: Border.all(color: AppConstants.secondaryColor.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
@@ -227,7 +233,7 @@ class _ChildProfileSetupScreenState extends State<ChildProfileSetupScreen> {
             style: theme.textTheme.labelSmall?.copyWith(
               letterSpacing: 1.5,
               fontWeight: FontWeight.w600,
-              color: AppConstants.accentColor,
+              color: AppConstants.secondaryColor,
             ),
           ),
           if (subtitle != null) ...[
@@ -265,6 +271,7 @@ class _ChildProfileSetupScreenState extends State<ChildProfileSetupScreen> {
           TextFormField(
             controller: controller,
             keyboardType: keyboard,
+            cursorColor: AppConstants.secondaryColor,
             style: theme.textTheme.bodyMedium?.copyWith(color: AppConstants.textPrimary),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -275,7 +282,7 @@ class _ChildProfileSetupScreenState extends State<ChildProfileSetupScreen> {
             decoration: InputDecoration(
               hintText: label,
               hintStyle: const TextStyle(color: AppConstants.textMuted),
-              prefixIcon: Icon(icon, size: 18, color: AppConstants.textSecondary),
+              prefixIcon: Icon(icon, size: 18, color: AppConstants.secondaryColor),
               filled: true,
               fillColor: AppConstants.surfaceCardLight,
               border: OutlineInputBorder(
@@ -288,7 +295,7 @@ class _ChildProfileSetupScreenState extends State<ChildProfileSetupScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
-                borderSide: const BorderSide(color: AppConstants.primaryColor),
+                borderSide: const BorderSide(color: AppConstants.secondaryColor),
               ),
             ),
           ),

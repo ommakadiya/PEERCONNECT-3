@@ -73,6 +73,28 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
           ),
           scaffoldBackgroundColor: AppConstants.backgroundColor,
           textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+          textSelectionTheme: const TextSelectionThemeData(
+            cursorColor: AppConstants.secondaryColor,
+            selectionColor: Color(0x55CAA64D),
+            selectionHandleColor: AppConstants.secondaryColor,
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: AppConstants.surfaceCardLight,
+            hintStyle: const TextStyle(color: AppConstants.textMuted),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
+              borderSide: const BorderSide(color: AppConstants.secondaryColor),
+            ),
+          ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppConstants.primaryColor,

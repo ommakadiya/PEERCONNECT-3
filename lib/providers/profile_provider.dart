@@ -58,6 +58,7 @@ class ProfileProvider extends ChangeNotifier {
   UserRole _role = UserRole.none;
   ChildProfile? _childProfile;
   List<ParentEntry> _parentEntries = [];
+  String? _localPhotoPath;
 
   final Set<String> _connectedIds = {'p2', 'p3'};
 
@@ -66,6 +67,7 @@ class ProfileProvider extends ChangeNotifier {
   ChildProfile? get childProfile => _childProfile;
   List<ParentEntry> get parentEntries => _parentEntries;
   Set<String> get connectedIds => _connectedIds;
+  String? get localPhotoPath => _localPhotoPath;
 
   bool get hasProfile =>
       _role != UserRole.none &&
@@ -113,6 +115,12 @@ class ProfileProvider extends ChangeNotifier {
     _childProfile = null;
     _parentEntries = [];
     _connectedIds.clear();
+    _localPhotoPath = null;
+    notifyListeners();
+  }
+
+  void setLocalPhotoPath(String path) {
+    _localPhotoPath = path;
     notifyListeners();
   }
 

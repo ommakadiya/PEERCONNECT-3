@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:peerconnect/providers/auth_provider.dart';
@@ -5,6 +6,8 @@ import 'package:peerconnect/providers/profile_provider.dart';
 import 'package:peerconnect/models/mock_data.dart';
 import 'package:peerconnect/screens/profile_details_screen.dart';
 import 'package:peerconnect/utils/constants.dart';
+import 'package:peerconnect/models/ad.dart';
+import 'package:peerconnect/screens/ad_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,68 +47,260 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: AppConstants.backgroundGradient,
-      ),
-      child: Consumer<AuthProvider>(
-        builder: (ctx, auth, _) {
-          final user = auth.user;
-          final profileProv = context.watch<ProfileProvider>();
-          
-          if (user == null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pushReplacementNamed('/login');
-            });
-            return const SizedBox.shrink();
-          }
+    return Consumer<AuthProvider>(
+      builder: (ctx, auth, _) {
+        final user = auth.user;
+        final profileProv = context.watch<ProfileProvider>();
 
-          final String displayName = profileProv.displayName.isNotEmpty 
-              ? profileProv.displayName 
-              : (user.name.isNotEmpty ? user.name : 'User');
-          final String displayEmail = profileProv.displayEmail.isNotEmpty
-              ? profileProv.displayEmail
-              : user.email;
+        if (user == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Navigator.of(context).pushReplacementNamed('/login');
+          });
+          return const SizedBox.shrink();
+        }
 
-          return SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _header(context, auth, displayName),
-                      const SizedBox(height: 32),
-                      _profileCard(displayName, displayEmail, user.photoUrl),
-                      const SizedBox(height: 24),
-                      _toggleButton(),
-                      const SizedBox(height: 16),
-                      _showConnections ? _connectionsList() : _groupsList(),
-                      const SizedBox(height: 24),
-                      _recentActivity(),
-                      const SizedBox(height: 24),
-                      _adsGrid(),
-                    ],
+        final String displayName = profileProv.displayName.isNotEmpty
+            ? profileProv.displayName
+            : (user.name.isNotEmpty ? user.name : 'User');
+        final String displayEmail = profileProv.displayEmail.isNotEmpty
+            ? profileProv.displayEmail
+            : user.email;
+
+        return Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: Colors.transparent,
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: AppConstants.backgroundGradient,
+            ),
+            child: SafeArea(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _header(context, auth, displayName),
+                            const SizedBox(height: 32),
+                            _profileCard(displayName, displayEmail, user.photoUrl),
+                            const SizedBox(height: 24),
+                            _toggleButton(),
+                            const SizedBox(height: 16),
+                            _showConnections ? _connectionsList() : _groupsList(),
+                            const SizedBox(height: 24),
+                            _recentActivity(),
+                            const SizedBox(height: 24),
+                            _adsGrid(),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          );
-        },
+          ),
+          drawer: _buildDrawer(context, auth, displayName, displayEmail),
+        );
+      },
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context, AuthProvider auth, String displayName, String displayEmail) {
+    final profileProv = context.watch<ProfileProvider>();
+    return Drawer(
+      backgroundColor: AppConstants.surfaceCard,
+      child: Column(
+        children: [
+          // ── Drawer Header ──
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(24, 60, 24, 28),
+            decoration: const BoxDecoration(
+              gradient: AppConstants.backgroundGradient,
+            ),
+            child: Column(
+              children: [
+                // App Logo
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppConstants.primaryColor.withValues(alpha: 0.4),
+                        blurRadius: 20,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(22),
+                    child: Image.asset('assets/app logo.jpg', fit: BoxFit.cover),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // App Name
+                const Text(
+                  'PeerConnect',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: AppConstants.textPrimary,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Connecting Peers Worldwide',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppConstants.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Divider with gold color
+                Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppConstants.secondaryColor.withValues(alpha: 0.0),
+                        AppConstants.secondaryColor,
+                        AppConstants.secondaryColor.withValues(alpha: 0.0),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // User info
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: AppConstants.primaryColor,
+                      backgroundImage: profileProv.localPhotoPath != null
+                          ? FileImage(File(profileProv.localPhotoPath!)) as ImageProvider
+                          : null,
+                      child: profileProv.localPhotoPath == null
+                          ? Text(
+                              displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            displayName,
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppConstants.textPrimary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            displayEmail,
+                            style: const TextStyle(fontSize: 12, color: AppConstants.textSecondary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // ── Drawer Items ──
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
+                _drawerItem(Icons.home_rounded, 'Home', () => Navigator.pop(context)),
+                _drawerItem(Icons.people_rounded, 'Connections', () => Navigator.pop(context)),
+                _drawerItem(Icons.help_outline_rounded, 'Help & Support', () => Navigator.pop(context)),
+                _drawerItem(Icons.person_rounded, 'Profile', () => Navigator.pop(context)),
+                const Divider(color: AppConstants.surfaceDark, indent: 16, endIndent: 16),
+                _drawerItem(Icons.privacy_tip_outlined, 'Privacy Policy', () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/privacy');
+                }),
+                _drawerItem(
+                  Icons.logout_rounded,
+                  'Sign Out',
+                  () {
+                    Navigator.pop(context);
+                    _confirmSignOut(context, auth);
+                  },
+                  color: AppConstants.errorColor,
+                ),
+              ],
+            ),
+          ),
+
+          // ── Footer ──
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Text(
+              'PeerConnect v1.0.0',
+              style: TextStyle(fontSize: 12, color: AppConstants.textMuted.withValues(alpha: 0.6)),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _drawerItem(IconData icon, String label, VoidCallback onTap, {Color? color}) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? AppConstants.accentColor, size: 22),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: color ?? AppConstants.textPrimary,
+        ),
+      ),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      horizontalTitleGap: 8,
     );
   }
 
   Widget _header(BuildContext ctx, AuthProvider auth, String displayName) {
     return Row(
       children: [
+        // Hamburger menu button
+        GestureDetector(
+          onTap: () => _scaffoldKey.currentState?.openDrawer(),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppConstants.surfaceCard,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.15)),
+            ),
+            child: const Icon(Icons.menu_rounded, color: AppConstants.textSecondary, size: 22),
+          ),
+        ),
+        const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -238,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen>
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
-            leading: Icon(Icons.group, color: AppConstants.accentColor),
+            leading: const Icon(Icons.group, color: AppConstants.accentColor),
             title: Text(group, style: const TextStyle(color: AppConstants.textPrimary)),
             subtitle: const Text('3 members', style: TextStyle(color: AppConstants.textSecondary)),
           ),
@@ -251,7 +446,7 @@ class _HomeScreenState extends State<HomeScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [AppConstants.surfaceCard, AppConstants.surfaceCardLight],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -282,10 +477,10 @@ class _HomeScreenState extends State<HomeScreen>
             child: CircleAvatar(
               radius: 30,
               backgroundColor: AppConstants.surfaceCardLight,
-              backgroundImage: photoUrl.isNotEmpty
-                  ? NetworkImage(photoUrl)
-                  : null,
-              child: photoUrl.isEmpty
+              backgroundImage: context.watch<ProfileProvider>().localPhotoPath != null
+                  ? FileImage(File(context.watch<ProfileProvider>().localPhotoPath!)) as ImageProvider
+                  : (photoUrl.isNotEmpty ? NetworkImage(photoUrl) : null),
+              child: (context.watch<ProfileProvider>().localPhotoPath == null && photoUrl.isEmpty)
                   ? Text(
                       name.isNotEmpty ? name[0].toUpperCase() : '?',
                       style: const TextStyle(
@@ -388,6 +583,53 @@ class _HomeScreenState extends State<HomeScreen>
   );
 
   Widget _adsGrid() {
+    final List<Ad> dummyAds = [
+      Ad(
+        adId: '1',
+        title: 'Premium Tools',
+        description: 'Upgrade your workflow with our new toolkit.',
+        targetCountry: 'Global',
+        linkUrl: 'https://peerconnect.app/premium',
+        startDate: DateTime.now(),
+        endDate: DateTime.now().add(const Duration(days: 30)),
+        createdAt: DateTime.now(),
+        likes: ['u1', 'u2'],
+      ),
+      Ad(
+        adId: '2',
+        title: 'Cloud Storage',
+        description: 'Get 50% off annually on cloud storage.',
+        targetCountry: 'USA',
+        linkUrl: 'https://peerconnect.app/cloud',
+        startDate: DateTime.now(),
+        endDate: DateTime.now().add(const Duration(days: 15)),
+        createdAt: DateTime.now(),
+        likes: ['u3'],
+      ),
+      Ad(
+        adId: '3',
+        title: 'Webinar',
+        description: 'Mastering Networking in 2026.',
+        targetCountry: 'Global',
+        linkUrl: 'https://peerconnect.app/webinar',
+        startDate: DateTime.now(),
+        endDate: DateTime.now().add(const Duration(days: 5)),
+        createdAt: DateTime.now(),
+        likes: [],
+      ),
+      Ad(
+        adId: '4',
+        title: 'Pro Insights',
+        description: 'Data-driven tips for your career.',
+        targetCountry: 'UK',
+        linkUrl: 'https://peerconnect.app/insights',
+        startDate: DateTime.now(),
+        endDate: DateTime.now().add(const Duration(days: 60)),
+        createdAt: DateTime.now(),
+        likes: ['u1', 'u4', 'u5'],
+      ),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -403,99 +645,106 @@ class _HomeScreenState extends State<HomeScreen>
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 200,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
             childAspectRatio: 0.85,
           ),
-          itemCount: 4,
+          itemCount: dummyAds.length,
           itemBuilder: (context, index) {
-            return _adCard(index);
+            return _adCard(dummyAds[index]);
           },
         ),
       ],
     );
   }
 
-  Widget _adCard(int index) {
-    final ads = [
-      {'title': 'Premium Tools', 'desc': 'Upgrade your workflow', 'icon': Icons.star_rounded},
-      {'title': 'Cloud Storage', 'desc': '50% off annually', 'icon': Icons.cloud_done_rounded},
-      {'title': 'Webinar', 'desc': 'Mastering Networking', 'icon': Icons.video_call_rounded},
-      {'title': 'Pro Insights', 'desc': 'Data-driven tips', 'icon': Icons.analytics_rounded},
-    ];
-    final ad = ads[index];
-    
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppConstants.surfaceCardLight,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppConstants.secondaryColor.withValues(alpha: 0.3),
+  Widget _adCard(Ad ad) {
+    IconData getIconForAd(String title) {
+      if (title.contains('Premium')) return Icons.star_rounded;
+      if (title.contains('Cloud')) return Icons.cloud_done_rounded;
+      if (title.contains('Webinar')) return Icons.video_call_rounded;
+      return Icons.analytics_rounded;
+    }
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => AdDetailsScreen(ad: ad)),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppConstants.surfaceCardLight,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppConstants.secondaryColor.withValues(alpha: 0.3),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppConstants.secondaryColor.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              ad['icon'] as IconData,
-              size: 28,
-              color: AppConstants.secondaryColor,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            ad['title'] as String,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppConstants.textPrimary,
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            ad['desc'] as String,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: AppConstants.textSecondary,
-              fontSize: 12,
-            ),
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppConstants.secondaryColor,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: const Text(
-              'Ad',
-              style: TextStyle(
-                color: AppConstants.backgroundColor,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppConstants.secondaryColor.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                getIconForAd(ad.title),
+                size: 28,
+                color: AppConstants.secondaryColor,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              ad.title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppConstants.textPrimary,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              ad.description,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppConstants.textSecondary,
+                fontSize: 12,
+              ),
+            ),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppConstants.secondaryColor,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text(
+                'Ad',
+                style: TextStyle(
+                  color: AppConstants.backgroundColor,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

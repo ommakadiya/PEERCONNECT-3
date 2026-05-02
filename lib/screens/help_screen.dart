@@ -142,7 +142,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 children: [
                   Text(
                     'Featured Opportunities',
-                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: AppConstants.textPrimary),
+                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: AppConstants.secondaryColor),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -219,7 +219,7 @@ class _AdCard extends StatelessWidget {
           color: AppConstants.surfaceCard,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppConstants.primaryColor.withValues(alpha: 0.3),
+            color: AppConstants.secondaryColor.withValues(alpha: 0.3),
             width: 0.5,
           ),
           boxShadow: [
@@ -247,7 +247,7 @@ class _AdCard extends StatelessWidget {
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           color: AppConstants.surfaceCardLight,
-                          child: const Center(child: Icon(Icons.broken_image, color: AppConstants.secondaryColor)),
+                          child: const Center(child: Icon(Icons.broken_image, size: 36, color: AppConstants.secondaryColor)),
                         );
                       },
                     ),
@@ -297,7 +297,7 @@ class _AdCard extends StatelessWidget {
                       const Icon(
                         Icons.category_outlined,
                         size: 14,
-                        color: AppConstants.textMuted,
+                        color: AppConstants.secondaryColor,
                       ),
                       const SizedBox(width: 4),
                       Expanded(
@@ -358,7 +358,7 @@ class _AdDetailSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppConstants.primaryColor.withValues(alpha: 0.5),
+              color: AppConstants.secondaryColor.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -424,13 +424,13 @@ class _AdDetailSheet extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppConstants.primaryColor.withValues(alpha: 0.15),
+                            color: AppConstants.secondaryColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             ad.type,
                             style: const TextStyle(
-                              color: AppConstants.primaryColor,
+                              color: AppConstants.secondaryColor,
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
                             ),
@@ -480,11 +480,11 @@ class _AdDetailSheet extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: const BoxDecoration(
-            color: AppConstants.surfaceCard,
+          decoration: BoxDecoration(
+            color: AppConstants.secondaryColor.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, size: 20, color: AppConstants.primaryColor),
+          child: Icon(icon, size: 20, color: AppConstants.secondaryColor),
         ),
         const SizedBox(width: 12),
         Expanded(

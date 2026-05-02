@@ -212,13 +212,19 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
                 // ── Submit Button ──
                 SizedBox(
                   width: double.infinity,
-                  height: 48,
+                  height: 52,
                   child: ElevatedButton(
                     onPressed: _submitForm,
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: AppConstants.secondaryColor,
+                      foregroundColor: AppConstants.backgroundColor,
                       padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingMd),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
+                      ),
+                      elevation: 4,
                     ),
-                    child: const Text('Complete Setup', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                    child: const Text('Complete Setup', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppConstants.backgroundColor)),
                   ),
                 ),
                 const SizedBox(height: AppConstants.paddingXl),
@@ -243,7 +249,7 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
       decoration: BoxDecoration(
         color: AppConstants.surfaceCard,
         borderRadius: BorderRadius.circular(AppConstants.borderRadiusLg),
-        border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.2)),
+        border: Border.all(color: AppConstants.secondaryColor.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
@@ -263,7 +269,7 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
                 style: theme.textTheme.labelSmall?.copyWith(
                   letterSpacing: 1.5,
                   fontWeight: FontWeight.w600,
-                  color: AppConstants.accentColor,
+                  color: AppConstants.secondaryColor,
                 ),
               ),
               if (trailing != null) trailing,
@@ -322,6 +328,7 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
           TextFormField(
             controller: controller,
             keyboardType: keyboard,
+            cursorColor: AppConstants.secondaryColor,
             style: theme.textTheme.bodyMedium?.copyWith(color: AppConstants.textPrimary),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -332,7 +339,7 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
             decoration: InputDecoration(
               hintText: label,
               hintStyle: const TextStyle(color: AppConstants.textMuted),
-              prefixIcon: Icon(icon, size: 18, color: AppConstants.textSecondary),
+              prefixIcon: Icon(icon, size: 18, color: AppConstants.secondaryColor),
               filled: true,
               fillColor: AppConstants.surfaceCardLight,
               border: OutlineInputBorder(
@@ -345,7 +352,7 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
-                borderSide: const BorderSide(color: AppConstants.primaryColor),
+                borderSide: const BorderSide(color: AppConstants.secondaryColor),
               ),
             ),
           ),
