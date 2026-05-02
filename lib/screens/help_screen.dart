@@ -1,67 +1,507 @@
 import 'package:flutter/material.dart';
-import 'package:peerconnect/utils/constants.dart';
+import '../theme/app_theme.dart';
+import '../widgets/micro_interactions.dart';
 
-class HelpScreen extends StatelessWidget {
+// ── Data Model ──
+class Advertisement {
+  final String id;
+  final String title;
+  final String type;
+  final String description;
+  final String contact;
+  final String website;
+  final String location;
+  final String image;
+
+  const Advertisement({
+    required this.id,
+    required this.title,
+    required this.type,
+    required this.description,
+    required this.contact,
+    required this.website,
+    required this.location,
+    required this.image,
+  });
+}
+
+// ── Static data ──
+const _adsData = [
+  Advertisement(
+    id: '1',
+    title: 'Kitchen Staff Hiring',
+    type: 'Job Opportunity',
+    description: 'Hiring kitchen staff for part-time and full-time roles. Suitable for basic cooking and kitchen work.',
+    contact: 'Apply within or send CV',
+    website: 'Not Available',
+    location: 'Not specified',
+    image: 'assets/images/ad1.jpg',
+  ),
+  Advertisement(
+    id: '2',
+    title: 'Restaurant Staff Hiring',
+    type: 'Job Opportunity',
+    description: 'Hiring Commis Chef, Receptionist, and Kitchen Staff. Includes meals and flexible shifts.',
+    contact: '6356385085',
+    website: 'Not Available',
+    location: 'Rajkot',
+    image: 'assets/images/ad2.jpg',
+  ),
+  Advertisement(
+    id: '3',
+    title: 'PG Diploma Admission',
+    type: 'Education',
+    description: 'PG Diploma in Advertising and MSL Management Associate program. Focus on student success and career growth.',
+    contact: '+91 9833806739',
+    website: 'Not Available',
+    location: 'Not specified',
+    image: 'assets/images/ad3.jpg',
+  ),
+  Advertisement(
+    id: '4',
+    title: 'PG Abroad After MBBS',
+    type: 'Education / Study Abroad',
+    description: 'Opportunities for Indian MBBS students to pursue PG abroad with course and fee guidance.',
+    contact: 'Not Available',
+    website: 'Careers360',
+    location: 'India',
+    image: 'assets/images/ad4.jpg',
+  ),
+  Advertisement(
+    id: '5',
+    title: 'Work in Germany',
+    type: 'Job Opportunity (International)',
+    description: 'Technical job opportunities in Germany for professionals with minimum 5 years experience.',
+    contact: '+91 9998011396, +91 7043991743',
+    website: 'www.globalgateways.co',
+    location: 'Germany / India',
+    image: 'assets/images/ad5.jpg',
+  ),
+];
+
+// ══════════════════════════════════════════════════
+//  HELP SCREEN
+// ══════════════════════════════════════════════════
+class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
 
-  // Mock ads data
-  static const List<String> ads = [
-    'Ad 1: Amazing Product!',
-    'Ad 2: Great Service!',
-    'Ad 3: Buy Now!',
-    'Ad 4: Special Offer!',
-    'Ad 5: New Features!',
-    'Ad 6: Join Us!',
-    'Ad 7: Exclusive Deal!',
-    'Ad 8: Limited Time!',
-  ];
+  @override
+  State<HelpScreen> createState() => _HelpScreenState();
+}
+
+class _HelpScreenState extends State<HelpScreen> {
+  // Maintaining liked ads state locally by storing their IDs
+  final Set<String> _likedAdIds = {};
+
+  void _toggleLike(String adId) {
+    setState(() {
+      if (_likedAdIds.contains(adId)) {
+        _likedAdIds.remove(adId);
+      } else {
+        _likedAdIds.add(adId);
+      }
+    });
+  }
+
+  void _openAdDetails(Advertisement ad) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        // StatefulBuilder allows updating the like button inside the bottom sheet
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final isLiked = _likedAdIds.contains(ad.id);
+            return _AdDetailSheet(
+              ad: ad,
+              isLiked: isLiked,
+              onToggleLike: () {
+                _toggleLike(ad.id);
+                setModalState(() {});
+              },
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Featured Opportunities',
+                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Discover jobs, education, and services curated for you.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            sliver: SliverLayoutBuilder(
+              builder: (context, constraints) {
+                int columns = constraints.crossAxisExtent >= 600 ? 2 : 1;
+                
+                return SliverGrid(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final ad = _adsData[index];
+                      return _AdCard(
+                        ad: ad,
+                        isLiked: _likedAdIds.contains(ad.id),
+                        onToggleLike: () => _toggleLike(ad.id),
+                        onTap: () => _openAdDetails(ad),
+                      );
+                    },
+                    childCount: _adsData.length,
+                  ),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    crossAxisSpacing: AppSpacing.md,
+                    mainAxisSpacing: AppSpacing.md,
+                    mainAxisExtent: 220, // fixed height for consistent card size
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  AD CARD
+// ══════════════════════════════════════════════════
+class _AdCard extends StatelessWidget {
+  final Advertisement ad;
+  final bool isLiked;
+  final VoidCallback onToggleLike;
+  final VoidCallback onTap;
+
+  const _AdCard({
+    required this.ad,
+    required this.isLiked,
+    required this.onToggleLike,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return PressableScale(
+      onTap: onTap,
+      scaleFactor: 0.98,
+      child: AnimatedContainer(
+        duration: AppDurations.normal,
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : AppColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isDark ? AppColors.darkBorder : AppColors.border,
+            width: 0.5,
+          ),
+          boxShadow: AppShadows.sm(isDark: isDark),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Top Image
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Hero(
+                    tag: 'ad_image_${ad.id}',
+                    child: Image.asset(
+                      ad.image,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: isDark ? AppColors.darkElevated : AppColors.surface,
+                          child: const Center(child: Icon(Icons.broken_image, color: AppColors.secondary)),
+                        );
+                      },
+                    ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: (isDark ? AppColors.darkBackground : AppColors.primary).withValues(alpha: 0.72),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          isLiked ? Icons.favorite : Icons.favorite_border,
+                          color: isLiked ? AppColors.accent : AppColors.background,
+                          size: 20,
+                        ),
+                        onPressed: onToggleLike,
+                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                        padding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Bottom Info
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    ad.title,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.category_outlined,
+                        size: 14,
+                        color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          ad.type,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  AD DETAIL BOTTOM SHEET
+// ══════════════════════════════════════════════════
+class _AdDetailSheet extends StatelessWidget {
+  final Advertisement ad;
+  final bool isLiked;
+  final VoidCallback onToggleLike;
+
+  const _AdDetailSheet({
+    required this.ad,
+    required this.isLiked,
+    required this.onToggleLike,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    // Panel should cover ~75% of screen height
+    final screenHeight = MediaQuery.of(context).size.height;
+    
     return Container(
-      decoration: const BoxDecoration(gradient: AppConstants.backgroundGradient),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+      height: screenHeight * 0.75,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkBackground : AppColors.background,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          // Drag handle
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 12),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkBorder : AppColors.border,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image
+                  Hero(
+                    tag: 'ad_image_${ad.id}',
+                    child: SizedBox(
+                      height: 220,
+                      width: double.infinity,
+                      child: Image.asset(
+                        ad.image,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: isDark ? AppColors.darkElevated : AppColors.surface,
+                            child: const Center(child: Icon(Icons.broken_image, size: 48, color: AppColors.secondary)),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  
+                  Padding(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title & Like
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                ad.title,
+                                style: theme.textTheme.headlineMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                isLiked ? Icons.favorite : Icons.favorite_border,
+                                color: isLiked ? AppColors.accent : (isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+                                size: 28,
+                              ),
+                              onPressed: onToggleLike,
+                            ),
+                          ],
+                        ),
+                        
+                        const SizedBox(height: 8),
+                        
+                        // Type Badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.lightAccent,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            ad.type,
+                            style: TextStyle(
+                              color: isDark ? AppColors.primary : AppColors.success,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Description
+                        Text(
+                          'Description',
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          ad.description,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            height: 1.5,
+                            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Details Section
+                        _buildDetailRow(context, Icons.phone_outlined, 'Contact', ad.contact, isDark),
+                        const SizedBox(height: 16),
+                        _buildDetailRow(context, Icons.language_outlined, 'Website', ad.website, isDark),
+                        const SizedBox(height: 16),
+                        _buildDetailRow(context, Icons.location_on_outlined, 'Location', ad.location, isDark),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(BuildContext context, IconData icon, String label, String value, bool isDark) {
+    final theme = Theme.of(context);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.surface,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 20, color: isDark ? AppColors.darkPrimary : AppColors.primary),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Help & Ads',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppConstants.textPrimary),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1,
-                  ),
-                  itemCount: ads.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      color: AppConstants.surfaceCard,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Text(
-                            ads[index],
-                            style: const TextStyle(color: AppConstants.textPrimary, fontSize: 16),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+              Text(
+                label,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                  fontWeight: FontWeight.w500,
                 ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
               ),
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 }
