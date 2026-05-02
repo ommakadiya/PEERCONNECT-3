@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -119,42 +120,264 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
           '/login': (_) => const LoginScreen(),
           '/privacy': (_) => const PrivacyPolicyScreen(),
           '/role': (_) => const RoleSelectionScreen(),
-          '/main': (_) => Scaffold(
-            body: IndexedStack(
-              index: _selectedIndex,
-              children: _pages,
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              showSelectedLabels: true,
-              showUnselectedLabels: true,
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Home',
+          '/main': (routeCtx) => Consumer2<AuthProvider, ProfileProvider>(
+            builder: (context, auth, profileProv, __) {
+              final displayName = profileProv.displayName.isNotEmpty
+                  ? profileProv.displayName
+                  : (auth.user?.name ?? 'User');
+              final displayEmail = profileProv.displayEmail.isNotEmpty
+                  ? profileProv.displayEmail
+                  : (auth.user?.email ?? '');
+
+              return Scaffold(
+                appBar: AppBar(
+                  backgroundColor: AppConstants.surfaceCard,
+                  elevation: 0,
+                  iconTheme: const IconThemeData(color: AppConstants.secondaryColor),
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(
+                          'assets/app_logo2.png',
+                          width: 34,
+                          height: 34,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'PeerConnect',
+                        style: TextStyle(
+                          color: AppConstants.textPrimary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                  centerTitle: false,
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.people),
-                  label: 'Connections',
+                body: IndexedStack(
+                  index: _selectedIndex,
+                  children: _pages,
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.help),
-                  label: 'Help',
+                drawer: _buildDrawer(context, auth, profileProv, displayName, displayEmail),
+                bottomNavigationBar: BottomNavigationBar(
+                  type: BottomNavigationBarType.fixed,
+                  showSelectedLabels: true,
+                  showUnselectedLabels: true,
+                  items: const <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.home),
+                      label: 'Home',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.people),
+                      label: 'Connections',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.help),
+                      label: 'Help',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.person),
+                      label: 'Profile',
+                    ),
+                  ],
+                  currentIndex: _selectedIndex,
+                  selectedItemColor: AppConstants.secondaryColor,
+                  unselectedItemColor: AppConstants.textSecondary,
+                  backgroundColor: AppConstants.surfaceCard,
+                  onTap: _onItemTapped,
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Profile',
-                ),
-              ],
-              currentIndex: _selectedIndex,
-              selectedItemColor: AppConstants.secondaryColor,
-              unselectedItemColor: AppConstants.textSecondary,
-              backgroundColor: AppConstants.surfaceCard,
-              onTap: _onItemTapped,
-            ),
+              );
+            },
           ),
         },
       ),
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context, AuthProvider auth, ProfileProvider profileProv, String displayName, String displayEmail) {
+    return Drawer(
+      backgroundColor: AppConstants.surfaceCard,
+      child: Column(
+        children: [
+          // ── Drawer Header ──
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(24, 60, 24, 28),
+            decoration: const BoxDecoration(
+              gradient: AppConstants.backgroundGradient,
+            ),
+            child: Column(
+              children: [
+                // App Logo
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppConstants.primaryColor.withValues(alpha: 0.4),
+                        blurRadius: 20,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(22),
+                    child: Image.asset('assets/app logo.jpg', fit: BoxFit.cover),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // App Name
+                const Text(
+                  'PeerConnect',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: AppConstants.textPrimary,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Connecting Peers Worldwide',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppConstants.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Gold divider
+                Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppConstants.secondaryColor.withValues(alpha: 0.0),
+                        AppConstants.secondaryColor,
+                        AppConstants.secondaryColor.withValues(alpha: 0.0),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // User info
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: AppConstants.primaryColor,
+                      backgroundImage: profileProv.localPhotoPath != null
+                          ? FileImage(File(profileProv.localPhotoPath!)) as ImageProvider
+                          : null,
+                      child: profileProv.localPhotoPath == null
+                          ? Text(
+                              displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            displayName,
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppConstants.textPrimary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            displayEmail,
+                            style: const TextStyle(fontSize: 12, color: AppConstants.textSecondary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // ── Drawer Items ──
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
+                _drawerItem(Icons.home_rounded, 'Home', () {
+                  Navigator.pop(context);
+                  _onItemTapped(0);
+                }),
+                _drawerItem(Icons.people_rounded, 'Connections', () {
+                  Navigator.pop(context);
+                  _onItemTapped(1);
+                }),
+                _drawerItem(Icons.help_outline_rounded, 'Help & Support', () {
+                  Navigator.pop(context);
+                  _onItemTapped(2);
+                }),
+                _drawerItem(Icons.person_rounded, 'Profile', () {
+                  Navigator.pop(context);
+                  _onItemTapped(3);
+                }),
+                const Divider(color: AppConstants.surfaceDark, indent: 16, endIndent: 16),
+                _drawerItem(Icons.privacy_tip_outlined, 'Privacy Policy', () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/privacy');
+                }),
+                _drawerItem(
+                  Icons.logout_rounded,
+                  'Sign Out',
+                  () {
+                    Navigator.pop(context);
+                    auth.signOut().then((_) {
+                      if (context.mounted) {
+                        Navigator.of(context).pushReplacementNamed('/login');
+                      }
+                    });
+                  },
+                  color: AppConstants.errorColor,
+                ),
+              ],
+            ),
+          ),
+
+          // ── Footer ──
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Text(
+              'PeerConnect v1.0.0',
+              style: TextStyle(fontSize: 12, color: AppConstants.textMuted.withValues(alpha: 0.6)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _drawerItem(IconData icon, String label, VoidCallback onTap, {Color? color}) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? AppConstants.accentColor, size: 22),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: color ?? AppConstants.textPrimary,
+        ),
+      ),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      horizontalTitleGap: 8,
     );
   }
 }

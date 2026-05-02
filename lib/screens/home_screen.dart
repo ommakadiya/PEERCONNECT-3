@@ -47,8 +47,6 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
@@ -70,41 +68,37 @@ class _HomeScreenState extends State<HomeScreen>
             ? profileProv.displayEmail
             : user.email;
 
-        return Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: Colors.transparent,
-          body: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: AppConstants.backgroundGradient,
-            ),
-            child: SafeArea(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 800),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: SlideTransition(
-                        position: _slideAnimation,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _header(context, auth, displayName),
-                            const SizedBox(height: 32),
-                            _profileCard(displayName, displayEmail, user.photoUrl),
-                            const SizedBox(height: 24),
-                            _toggleButton(),
-                            const SizedBox(height: 16),
-                            _showConnections ? _connectionsList() : _groupsList(),
-                            const SizedBox(height: 24),
-                            _recentActivity(),
-                            const SizedBox(height: 24),
-                            _adsGrid(),
-                          ],
-                        ),
+        return Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: AppConstants.backgroundGradient,
+          ),
+          child: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _header(context, auth, displayName),
+                          const SizedBox(height: 32),
+                          _profileCard(displayName, displayEmail, user.photoUrl),
+                          const SizedBox(height: 24),
+                          _toggleButton(),
+                          const SizedBox(height: 16),
+                          _showConnections ? _connectionsList() : _groupsList(),
+                          const SizedBox(height: 24),
+                          _recentActivity(),
+                          const SizedBox(height: 24),
+                          _adsGrid(),
+                        ],
                       ),
                     ),
                   ),
@@ -112,195 +106,14 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
           ),
-          drawer: _buildDrawer(context, auth, displayName, displayEmail),
         );
       },
-    );
-  }
-
-  Widget _buildDrawer(BuildContext context, AuthProvider auth, String displayName, String displayEmail) {
-    final profileProv = context.watch<ProfileProvider>();
-    return Drawer(
-      backgroundColor: AppConstants.surfaceCard,
-      child: Column(
-        children: [
-          // ── Drawer Header ──
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(24, 60, 24, 28),
-            decoration: const BoxDecoration(
-              gradient: AppConstants.backgroundGradient,
-            ),
-            child: Column(
-              children: [
-                // App Logo
-                Container(
-                  width: 90,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppConstants.primaryColor.withValues(alpha: 0.4),
-                        blurRadius: 20,
-                        spreadRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(22),
-                    child: Image.asset('assets/app logo.jpg', fit: BoxFit.cover),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // App Name
-                const Text(
-                  'PeerConnect',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: AppConstants.textPrimary,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Connecting Peers Worldwide',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppConstants.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Divider with gold color
-                Container(
-                  height: 1,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppConstants.secondaryColor.withValues(alpha: 0.0),
-                        AppConstants.secondaryColor,
-                        AppConstants.secondaryColor.withValues(alpha: 0.0),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // User info
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 24,
-                      backgroundColor: AppConstants.primaryColor,
-                      backgroundImage: profileProv.localPhotoPath != null
-                          ? FileImage(File(profileProv.localPhotoPath!)) as ImageProvider
-                          : null,
-                      child: profileProv.localPhotoPath == null
-                          ? Text(
-                              displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            displayName,
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppConstants.textPrimary),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            displayEmail,
-                            style: const TextStyle(fontSize: 12, color: AppConstants.textSecondary),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // ── Drawer Items ──
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _drawerItem(Icons.home_rounded, 'Home', () => Navigator.pop(context)),
-                _drawerItem(Icons.people_rounded, 'Connections', () => Navigator.pop(context)),
-                _drawerItem(Icons.help_outline_rounded, 'Help & Support', () => Navigator.pop(context)),
-                _drawerItem(Icons.person_rounded, 'Profile', () => Navigator.pop(context)),
-                const Divider(color: AppConstants.surfaceDark, indent: 16, endIndent: 16),
-                _drawerItem(Icons.privacy_tip_outlined, 'Privacy Policy', () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/privacy');
-                }),
-                _drawerItem(
-                  Icons.logout_rounded,
-                  'Sign Out',
-                  () {
-                    Navigator.pop(context);
-                    _confirmSignOut(context, auth);
-                  },
-                  color: AppConstants.errorColor,
-                ),
-              ],
-            ),
-          ),
-
-          // ── Footer ──
-          Padding(
-            padding: const EdgeInsets.only(bottom: 24),
-            child: Text(
-              'PeerConnect v1.0.0',
-              style: TextStyle(fontSize: 12, color: AppConstants.textMuted.withValues(alpha: 0.6)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _drawerItem(IconData icon, String label, VoidCallback onTap, {Color? color}) {
-    return ListTile(
-      leading: Icon(icon, color: color ?? AppConstants.accentColor, size: 22),
-      title: Text(
-        label,
-        style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-          color: color ?? AppConstants.textPrimary,
-        ),
-      ),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      horizontalTitleGap: 8,
     );
   }
 
   Widget _header(BuildContext ctx, AuthProvider auth, String displayName) {
     return Row(
       children: [
-        // Hamburger menu button
-        GestureDetector(
-          onTap: () => _scaffoldKey.currentState?.openDrawer(),
-          child: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppConstants.surfaceCard,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.15)),
-            ),
-            child: const Icon(Icons.menu_rounded, color: AppConstants.textSecondary, size: 22),
-          ),
-        ),
-        const SizedBox(width: 12),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
