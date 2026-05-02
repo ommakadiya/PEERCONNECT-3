@@ -10,6 +10,9 @@ import 'package:peerconnect/screens/home_screen.dart';
 import 'package:peerconnect/screens/connections_screen.dart';
 import 'package:peerconnect/screens/help_screen.dart';
 import 'package:peerconnect/screens/profile_screen.dart';
+import 'package:peerconnect/providers/profile_provider.dart';
+import 'package:peerconnect/screens/role_selection_screen.dart';
+import 'package:peerconnect/screens/privacy_policy_screen.dart';
 import 'package:peerconnect/utils/constants.dart';
 
 /// Root widget of the PeerConnect application.
@@ -48,6 +51,9 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
             authService: AuthService(),
             firestoreService: FirestoreService(),
           ),
+        ),
+        ChangeNotifierProvider<ProfileProvider>(
+          create: (_) => ProfileProvider(),
         ),
       ],
       child: MaterialApp(
@@ -89,12 +95,17 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
         routes: {
           '/': (_) => const SplashScreen(),
           '/login': (_) => const LoginScreen(),
+          '/privacy': (_) => const PrivacyPolicyScreen(),
+          '/role': (_) => const RoleSelectionScreen(),
           '/main': (_) => Scaffold(
             body: IndexedStack(
               index: _selectedIndex,
               children: _pages,
             ),
             bottomNavigationBar: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              showSelectedLabels: true,
+              showUnselectedLabels: true,
               items: const <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home),
@@ -114,7 +125,7 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
                 ),
               ],
               currentIndex: _selectedIndex,
-              selectedItemColor: AppConstants.primaryColor,
+              selectedItemColor: AppConstants.secondaryColor,
               unselectedItemColor: AppConstants.textSecondary,
               backgroundColor: AppConstants.surfaceCard,
               onTap: _onItemTapped,

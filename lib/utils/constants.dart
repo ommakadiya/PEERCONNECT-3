@@ -10,17 +10,17 @@ class AppConstants {
   static const String googleSignInWebClientId = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
 
   // ── Colors ────────────────────────────────────────────────────────────
-  static const Color backgroundColor = Color(0xFF0A1F0F);
-  static const Color primaryColor = Color(0xFF0C4A23);
-  static const Color secondaryColor = Color(0xFF1C6331);
-  static const Color accentColor = Color(0xFFE4C56C);
-  static const Color highlightColor = Color(0xFFC0A35A);
-  static const Color surfaceDark = backgroundColor;
-  static const Color surfaceCard = Color(0xFF1A2F1F);
-  static const Color surfaceCardLight = Color(0xFF223727);
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFFB0BCC0);
-  static const Color textMuted = Color(0xFF8A857F);
+  static const Color backgroundColor = Color(0xFF1B4332);
+  static const Color primaryColor = Color(0xFF355E3B);
+  static const Color secondaryColor = Color(0xFFCAA64D);
+  static const Color accentColor = Color(0xFFCAA64D);
+  static const Color highlightColor = Color(0xFFE5C36E);
+  static const Color surfaceDark = Color(0xFF143024);
+  static const Color surfaceCard = Color(0xFF244A37);
+  static const Color surfaceCardLight = Color(0xFF355E3B);
+  static const Color textPrimary = Color(0xFFFDF6E3);
+  static const Color textSecondary = Color(0xFFD4CCB6);
+  static const Color textMuted = Color(0xFFA6A495);
   static const Color errorColor = Color(0xFFFF4757);
   static const Color successColor = Color(0xFF2ED573);
 
@@ -32,7 +32,7 @@ class AppConstants {
   );
 
   static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [backgroundColor, Color(0xFF0F2415), backgroundColor],
+    colors: [backgroundColor, surfaceDark, backgroundColor],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );

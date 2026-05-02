@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../main.dart';
-import '../theme/app_theme.dart';
-import '../widgets/micro_interactions.dart';
-import 'main_layout.dart';
+import '../providers/profile_provider.dart';
+import '../utils/constants.dart';
 
 class ParentProfileSetupScreen extends StatefulWidget {
   const ParentProfileSetupScreen({super.key});
@@ -18,6 +16,7 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
 
   // Parent 1 controllers
   final _name1 = TextEditingController();
+  final _email1 = TextEditingController();
   final _originCity1 = TextEditingController();
   final _phone1 = TextEditingController();
   final _address1 = TextEditingController();
@@ -26,6 +25,7 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
 
   // Parent 2 controllers
   final _name2 = TextEditingController();
+  final _email2 = TextEditingController();
   final _originCity2 = TextEditingController();
   final _phone2 = TextEditingController();
   final _address2 = TextEditingController();
@@ -35,12 +35,14 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
   @override
   void dispose() {
     _name1.dispose();
+    _email1.dispose();
     _originCity1.dispose();
     _phone1.dispose();
     _address1.dispose();
     _occupation1.dispose();
     _childEmail1.dispose();
     _name2.dispose();
+    _email2.dispose();
     _originCity2.dispose();
     _phone2.dispose();
     _address2.dispose();
@@ -51,49 +53,48 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      final provider = Provider.of<AppStateProvider>(context, listen: false);
+      final provider = context.read<ProfileProvider>();
 
-      List<ParentDetail> parents = [
-        ParentDetail(
+      List<ParentEntry> parents = [
+        ParentEntry(
           name: _name1.text.trim(),
+          email: _email1.text.trim(),
           originCity: _originCity1.text.trim(),
           phone: _phone1.text.trim(),
           address: _address1.text.trim(),
           occupation: _occupation1.text.trim(),
-          childEmailId: _childEmail1.text.trim(),
+          childEmail: _childEmail1.text.trim(),
         ),
       ];
 
       if (_parentCount == 2) {
         parents.add(
-          ParentDetail(
+          ParentEntry(
             name: _name2.text.trim(),
+            email: _email2.text.trim(),
             originCity: _originCity2.text.trim(),
             phone: _phone2.text.trim(),
             address: _address2.text.trim(),
             occupation: _occupation2.text.trim(),
-            childEmailId: _childEmail2.text.trim(),
+            childEmail: _childEmail2.text.trim(),
           ),
         );
       }
 
-      provider.completeParentProfile(parents: parents);
-      Navigator.of(context).pushReplacement(
-        FadePageRoute(page: const MainLayout()),
-      );
+      provider.saveParentProfile(parents);
+      Navigator.of(context).pushReplacementNamed('/main');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.background,
+      backgroundColor: AppConstants.backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: AppSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: AppConstants.paddingLg),
           child: Form(
             key: _formKey,
             child: Column(
@@ -104,19 +105,19 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
                   children: [
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(Icons.arrow_back_ios, size: 20, color: isDark ? AppColors.darkText : AppColors.textPrimary),
+                      icon: const Icon(Icons.arrow_back_ios, size: 20, color: AppConstants.textPrimary),
                     ),
                     Expanded(
                       child: Text(
                         'Parent Profile Setup',
                         textAlign: TextAlign.center,
-                        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, color: AppConstants.textPrimary),
                       ),
                     ),
                     const SizedBox(width: 48),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppConstants.paddingLg),
 
                 // ── Avatar ──
                 Center(
@@ -128,8 +129,8 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
                       children: [
                         CircleAvatar(
                           radius: 44,
-                          backgroundColor: isDark ? AppColors.darkBorder : AppColors.border,
-                          child: Icon(Icons.person, size: 44, color: isDark ? AppColors.darkTextMuted : AppColors.textMuted),
+                          backgroundColor: AppConstants.surfaceCardLight,
+                          child: const Icon(Icons.person, size: 44, color: AppConstants.textMuted),
                         ),
                         Positioned(
                           bottom: 0,
@@ -137,39 +138,38 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(6),
                             decoration: const BoxDecoration(
-                              color: AppColors.primary,
+                              color: AppConstants.primaryColor,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.camera_alt, size: 14, color: AppColors.background),
+                            child: const Icon(Icons.camera_alt, size: 14, color: AppConstants.textPrimary),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppConstants.paddingSm),
                 Center(
-                  child: Text('Tap to add photo', style: theme.textTheme.labelMedium),
+                  child: Text('Tap to add photo', style: theme.textTheme.labelMedium?.copyWith(color: AppConstants.textSecondary)),
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppConstants.paddingXl),
 
                 // ── Parent 1 Card ──
                 _buildFormCard(
                   title: 'PARENT 1 DETAILS',
-                  isDark: isDark,
                   theme: theme,
                   children: _buildParentFields(
                     nameCtrl: _name1,
+                    emailCtrl: _email1,
                     cityCtrl: _originCity1,
                     phoneCtrl: _phone1,
                     addressCtrl: _address1,
                     occupationCtrl: _occupation1,
                     childEmailCtrl: _childEmail1,
                     theme: theme,
-                    isDark: isDark,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppConstants.paddingLg),
 
                 // ── Add / Remove Parent 2 ──
                 if (_parentCount < 2)
@@ -179,10 +179,10 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
                       icon: const Icon(Icons.person_add, size: 18),
                       label: const Text('Add Another Parent'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.primary),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+                        foregroundColor: AppConstants.primaryColor,
+                        side: const BorderSide(color: AppConstants.primaryColor),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadiusSm)),
+                        padding: const EdgeInsets.symmetric(horizontal: AppConstants.paddingXl, vertical: AppConstants.paddingMd),
                       ),
                     ),
                   ),
@@ -190,42 +190,38 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
                 if (_parentCount == 2) ...[
                   _buildFormCard(
                     title: 'PARENT 2 DETAILS',
-                    isDark: isDark,
                     theme: theme,
                     trailing: TextButton(
                       onPressed: () => setState(() => _parentCount = 1),
-                      child: const Text('Remove', style: TextStyle(color: AppColors.error, fontSize: 13)),
+                      child: const Text('Remove', style: TextStyle(color: AppConstants.errorColor, fontSize: 13)),
                     ),
                     children: _buildParentFields(
                       nameCtrl: _name2,
+                      emailCtrl: _email2,
                       cityCtrl: _originCity2,
                       phoneCtrl: _phone2,
                       addressCtrl: _address2,
                       occupationCtrl: _occupation2,
                       childEmailCtrl: _childEmail2,
                       theme: theme,
-                      isDark: isDark,
                     ),
                   ),
                 ],
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppConstants.paddingXl),
 
                 // ── Submit Button ──
                 SizedBox(
                   width: double.infinity,
                   height: 48,
-                  child: PressableScale(
-                    scaleFactor: 0.95,
-                    child: ElevatedButton(
-                      onPressed: _submitForm,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                      ),
-                      child: const Text('Complete Setup', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  child: ElevatedButton(
+                    onPressed: _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingMd),
                     ),
+                    child: const Text('Complete Setup', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppConstants.paddingXl),
               ],
             ),
           ),
@@ -237,19 +233,24 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
   // ── Form Card wrapper ──
   Widget _buildFormCard({
     required String title,
-    required bool isDark,
     required ThemeData theme,
     required List<Widget> children,
     Widget? trailing,
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppConstants.paddingLg),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkSurface : AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.border),
-        boxShadow: AppShadows.sm(isDark: isDark),
+        color: AppConstants.surfaceCard,
+        borderRadius: BorderRadius.circular(AppConstants.borderRadiusLg),
+        border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,13 +263,13 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
                 style: theme.textTheme.labelSmall?.copyWith(
                   letterSpacing: 1.5,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                  color: AppConstants.accentColor,
                 ),
               ),
               if (trailing != null) trailing,
             ],
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppConstants.paddingLg),
           ...children,
         ],
       ),
@@ -278,21 +279,22 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
   // ── Parent form fields ──
   List<Widget> _buildParentFields({
     required TextEditingController nameCtrl,
+    required TextEditingController emailCtrl,
     required TextEditingController cityCtrl,
     required TextEditingController phoneCtrl,
     required TextEditingController addressCtrl,
     required TextEditingController occupationCtrl,
     required TextEditingController childEmailCtrl,
     required ThemeData theme,
-    required bool isDark,
   }) {
     return [
-      _buildField(nameCtrl, 'Full Name', Icons.person, theme, isDark),
-      _buildField(cityCtrl, 'Origin City', Icons.location_city, theme, isDark),
-      _buildField(phoneCtrl, 'Phone Number', Icons.phone, theme, isDark, keyboard: TextInputType.phone),
-      _buildField(addressCtrl, 'Address', Icons.home, theme, isDark),
-      _buildField(occupationCtrl, 'Occupation', Icons.work, theme, isDark),
-      _buildField(childEmailCtrl, 'Child ID / Child Email', Icons.child_care, theme, isDark, keyboard: TextInputType.emailAddress),
+      _buildField(nameCtrl, 'Full Name', Icons.person, theme),
+      _buildField(emailCtrl, 'Email ID (Gmail)', Icons.email_outlined, theme, keyboard: TextInputType.emailAddress),
+      _buildField(cityCtrl, 'Origin City', Icons.location_city, theme),
+      _buildField(phoneCtrl, 'Phone Number', Icons.phone, theme, keyboard: TextInputType.phone),
+      _buildField(addressCtrl, 'Address', Icons.home, theme),
+      _buildField(occupationCtrl, 'Occupation', Icons.work, theme),
+      _buildField(childEmailCtrl, 'Child ID / Child Email', Icons.child_care, theme, keyboard: TextInputType.emailAddress),
     ];
   }
 
@@ -301,12 +303,11 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
     TextEditingController controller,
     String label,
     IconData icon,
-    ThemeData theme,
-    bool isDark, {
+    ThemeData theme, {
     TextInputType keyboard = TextInputType.text,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.only(bottom: AppConstants.paddingMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -314,14 +315,14 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
             label.toUpperCase(),
             style: theme.textTheme.labelSmall?.copyWith(
               letterSpacing: 1.0,
-              color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+              color: AppConstants.textMuted,
             ),
           ),
           const SizedBox(height: 6),
           TextFormField(
             controller: controller,
             keyboardType: keyboard,
-            style: theme.textTheme.bodyMedium,
+            style: theme.textTheme.bodyMedium?.copyWith(color: AppConstants.textPrimary),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return '$label is required';
@@ -330,7 +331,22 @@ class _ParentProfileSetupScreenState extends State<ParentProfileSetupScreen> {
             },
             decoration: InputDecoration(
               hintText: label,
-              prefixIcon: Icon(icon, size: 18),
+              hintStyle: const TextStyle(color: AppConstants.textMuted),
+              prefixIcon: Icon(icon, size: 18, color: AppConstants.textSecondary),
+              filled: true,
+              fillColor: AppConstants.surfaceCardLight,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
+                borderSide: const BorderSide(color: AppConstants.primaryColor),
+              ),
             ),
           ),
         ],

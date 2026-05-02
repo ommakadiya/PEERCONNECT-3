@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen>
           builder: (ctx, auth, _) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (auth.isAuthenticated) {
-                Navigator.of(context).pushReplacementNamed('/main');
+                Navigator.of(context).pushReplacementNamed('/privacy');
               }
             });
             return SafeArea(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../widgets/micro_interactions.dart';
+import '../utils/constants.dart';
 
 // ── Data Model ──
 class Advertisement {
@@ -130,26 +129,26 @@ class _HelpScreenState extends State<HelpScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: AppConstants.backgroundColor,
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
+              padding: const EdgeInsets.fromLTRB(AppConstants.paddingMd, AppConstants.paddingMd, AppConstants.paddingMd, AppConstants.paddingSm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Featured Opportunities',
-                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: AppConstants.textPrimary),
                   ),
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: 8),
                   Text(
                     'Discover jobs, education, and services curated for you.',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                      color: AppConstants.textSecondary,
                     ),
                   ),
                 ],
@@ -157,7 +156,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.all(AppConstants.paddingMd),
             sliver: SliverLayoutBuilder(
               builder: (context, constraints) {
                 int columns = constraints.crossAxisExtent >= 600 ? 2 : 1;
@@ -177,8 +176,8 @@ class _HelpScreenState extends State<HelpScreen> {
                   ),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: columns,
-                    crossAxisSpacing: AppSpacing.md,
-                    mainAxisSpacing: AppSpacing.md,
+                    crossAxisSpacing: AppConstants.paddingMd,
+                    mainAxisSpacing: AppConstants.paddingMd,
                     mainAxisExtent: 220, // fixed height for consistent card size
                   ),
                 );
@@ -210,21 +209,26 @@ class _AdCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
-    return PressableScale(
+    return InkWell(
       onTap: onTap,
-      scaleFactor: 0.98,
+      borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
-        duration: AppDurations.normal,
+        duration: AppConstants.animationMedium,
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurface : AppColors.surface,
+          color: AppConstants.surfaceCard,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isDark ? AppColors.darkBorder : AppColors.border,
+            color: AppConstants.primaryColor.withValues(alpha: 0.3),
             width: 0.5,
           ),
-          boxShadow: AppShadows.sm(isDark: isDark),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            )
+          ],
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -242,8 +246,8 @@ class _AdCard extends StatelessWidget {
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          color: isDark ? AppColors.darkElevated : AppColors.surface,
-                          child: const Center(child: Icon(Icons.broken_image, color: AppColors.secondary)),
+                          color: AppConstants.surfaceCardLight,
+                          child: const Center(child: Icon(Icons.broken_image, color: AppConstants.secondaryColor)),
                         );
                       },
                     ),
@@ -253,13 +257,13 @@ class _AdCard extends StatelessWidget {
                     right: 8,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: (isDark ? AppColors.darkBackground : AppColors.primary).withValues(alpha: 0.72),
+                        color: AppConstants.backgroundColor.withValues(alpha: 0.72),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
                         icon: Icon(
                           isLiked ? Icons.favorite : Icons.favorite_border,
-                          color: isLiked ? AppColors.accent : AppColors.background,
+                          color: isLiked ? AppConstants.accentColor : AppConstants.backgroundColor,
                           size: 20,
                         ),
                         onPressed: onToggleLike,
@@ -282,6 +286,7 @@ class _AdCard extends StatelessWidget {
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
+                      color: AppConstants.textPrimary,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -289,17 +294,17 @@ class _AdCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.category_outlined,
                         size: 14,
-                        color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                        color: AppConstants.textMuted,
                       ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           ad.type,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                            color: AppConstants.textSecondary,
                             fontWeight: FontWeight.w500,
                           ),
                           maxLines: 1,
@@ -335,16 +340,15 @@ class _AdDetailSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     
     // Panel should cover ~75% of screen height
     final screenHeight = MediaQuery.of(context).size.height;
     
     return Container(
       height: screenHeight * 0.75,
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkBackground : AppColors.background,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: const BoxDecoration(
+        color: AppConstants.backgroundColor,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         children: [
@@ -354,7 +358,7 @@ class _AdDetailSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: isDark ? AppColors.darkBorder : AppColors.border,
+              color: AppConstants.primaryColor.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -376,8 +380,8 @@ class _AdDetailSheet extends StatelessWidget {
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
-                            color: isDark ? AppColors.darkElevated : AppColors.surface,
-                            child: const Center(child: Icon(Icons.broken_image, size: 48, color: AppColors.secondary)),
+                            color: AppConstants.surfaceCardLight,
+                            child: const Center(child: Icon(Icons.broken_image, size: 48, color: AppConstants.secondaryColor)),
                           );
                         },
                       ),
@@ -385,7 +389,7 @@ class _AdDetailSheet extends StatelessWidget {
                   ),
                   
                   Padding(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    padding: const EdgeInsets.all(AppConstants.paddingLg),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -399,13 +403,14 @@ class _AdDetailSheet extends StatelessWidget {
                                 style: theme.textTheme.headlineMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 22,
+                                  color: AppConstants.textPrimary,
                                 ),
                               ),
                             ),
                             IconButton(
                               icon: Icon(
                                 isLiked ? Icons.favorite : Icons.favorite_border,
-                                color: isLiked ? AppColors.accent : (isDark ? AppColors.darkTextSecondary : AppColors.textSecondary),
+                                color: isLiked ? AppConstants.accentColor : AppConstants.textSecondary,
                                 size: 28,
                               ),
                               onPressed: onToggleLike,
@@ -419,13 +424,13 @@ class _AdDetailSheet extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: isDark ? AppColors.primary.withValues(alpha: 0.15) : AppColors.lightAccent,
+                            color: AppConstants.primaryColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             ad.type,
-                            style: TextStyle(
-                              color: isDark ? AppColors.primary : AppColors.success,
+                            style: const TextStyle(
+                              color: AppConstants.primaryColor,
                               fontWeight: FontWeight.w600,
                               fontSize: 13,
                             ),
@@ -437,25 +442,25 @@ class _AdDetailSheet extends StatelessWidget {
                         // Description
                         Text(
                           'Description',
-                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: AppConstants.textPrimary),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           ad.description,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             height: 1.5,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+                            color: AppConstants.textSecondary,
                           ),
                         ),
                         
                         const SizedBox(height: 24),
                         
                         // Details Section
-                        _buildDetailRow(context, Icons.phone_outlined, 'Contact', ad.contact, isDark),
+                        _buildDetailRow(context, Icons.phone_outlined, 'Contact', ad.contact),
                         const SizedBox(height: 16),
-                        _buildDetailRow(context, Icons.language_outlined, 'Website', ad.website, isDark),
+                        _buildDetailRow(context, Icons.language_outlined, 'Website', ad.website),
                         const SizedBox(height: 16),
-                        _buildDetailRow(context, Icons.location_on_outlined, 'Location', ad.location, isDark),
+                        _buildDetailRow(context, Icons.location_on_outlined, 'Location', ad.location),
                       ],
                     ),
                   ),
@@ -468,18 +473,18 @@ class _AdDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(BuildContext context, IconData icon, String label, String value, bool isDark) {
+  Widget _buildDetailRow(BuildContext context, IconData icon, String label, String value) {
     final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.darkSurface : AppColors.surface,
+          decoration: const BoxDecoration(
+            color: AppConstants.surfaceCard,
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, size: 20, color: isDark ? AppColors.darkPrimary : AppColors.primary),
+          child: Icon(icon, size: 20, color: AppConstants.primaryColor),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -489,14 +494,14 @@ class _AdDetailSheet extends StatelessWidget {
               Text(
                 label,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: isDark ? AppColors.darkTextMuted : AppColors.textMuted,
+                  color: AppConstants.textMuted,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500, color: AppConstants.textPrimary),
               ),
             ],
           ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:peerconnect/providers/profile_provider.dart';
 import 'package:peerconnect/models/mock_data.dart';
 import 'package:peerconnect/utils/constants.dart';
 
@@ -16,10 +18,7 @@ class _ConnectionsScreenState extends State<ConnectionsScreen>
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  /// IDs of users the current session user has connected with (in-memory).
-  final Set<String> _connectedIds = {'p2', 'p3'}; // seed: p1's existing connections
-
-  // Using parent "p1" (Rajesh Sharma) as the logged-in mock user.
+  // Using parent "p1" as the logged-in mock user.
   static const String _currentUserId = 'p1';
 
   @override
@@ -39,35 +38,39 @@ class _ConnectionsScreenState extends State<ConnectionsScreen>
   }
 
   // ── Computed lists ─────────────────────────────────────────────────────
-  List<ConnectionUser> get _recommendations => MockData.allUsers
+  List<ConnectionUser> _getRecommendations(Set<String> connectedIds) {
+    return MockData.allUsers
       .where((u) =>
           u.id != _currentUserId &&
-          !_connectedIds.contains(u.id) &&
+          !connectedIds.contains(u.id) &&
           (_searchQuery.isEmpty ||
               u.name.toLowerCase().contains(_searchQuery) ||
               u.role.toLowerCase().contains(_searchQuery) ||
               u.company.toLowerCase().contains(_searchQuery) ||
               u.originCity.toLowerCase().contains(_searchQuery)))
       .toList();
+  }
 
-  List<ConnectionUser> get _myConnections => MockData.allUsers
+  List<ConnectionUser> _getMyConnections(Set<String> connectedIds) {
+    return MockData.allUsers
       .where((u) =>
-          _connectedIds.contains(u.id) &&
+          connectedIds.contains(u.id) &&
           (_searchQuery.isEmpty ||
               u.name.toLowerCase().contains(_searchQuery) ||
               u.role.toLowerCase().contains(_searchQuery) ||
               u.company.toLowerCase().contains(_searchQuery) ||
               u.originCity.toLowerCase().contains(_searchQuery)))
       .toList();
+  }
 
   // ── Actions ────────────────────────────────────────────────────────────
   void _connect(ConnectionUser user) {
-    setState(() => _connectedIds.add(user.id));
+    context.read<ProfileProvider>().addConnection(user.id);
     _showSnack('✅ Connected with ${user.name}', AppConstants.successColor);
   }
 
   void _disconnect(ConnectionUser user) {
-    setState(() => _connectedIds.remove(user.id));
+    context.read<ProfileProvider>().removeConnection(user.id);
     _showSnack('Disconnected from ${user.name}', AppConstants.errorColor);
   }
 
@@ -86,8 +89,8 @@ class _ConnectionsScreenState extends State<ConnectionsScreen>
     );
   }
 
-  void _showProfile(ConnectionUser user) {
-    final isConnected = _connectedIds.contains(user.id);
+  void _showProfile(ConnectionUser user, Set<String> connectedIds) {
+    final isConnected = connectedIds.contains(user.id);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -110,6 +113,9 @@ class _ConnectionsScreenState extends State<ConnectionsScreen>
   // ── Build ──────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
+    final connectedIds = context.watch<ProfileProvider>().connectedIds;
+    final recommendations = _getRecommendations(connectedIds);
+    final myConnections = _getMyConnections(connectedIds);
     return Container(
       decoration: const BoxDecoration(gradient: AppConstants.backgroundGradient),
       child: SafeArea(
@@ -152,7 +158,7 @@ class _ConnectionsScreenState extends State<ConnectionsScreen>
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${_connectedIds.length} connected',
+                      '${connectedIds.length} connected',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -225,8 +231,8 @@ class _ConnectionsScreenState extends State<ConnectionsScreen>
                       fontWeight: FontWeight.w500, fontSize: 13),
                   dividerColor: Colors.transparent,
                   tabs: [
-                    Tab(text: 'Discover (${_recommendations.length})'),
-                    Tab(text: 'My Network (${_myConnections.length})'),
+                    Tab(text: 'Discover (${recommendations.length})'),
+                    Tab(text: 'My Network (${myConnections.length})'),
                   ],
                 ),
               ),
@@ -240,22 +246,22 @@ class _ConnectionsScreenState extends State<ConnectionsScreen>
                 controller: _tabController,
                 children: [
                   _UserList(
-                    users: _recommendations,
+                    users: recommendations,
                     emptyMessage: _searchQuery.isEmpty
                         ? "You've connected with everyone! 🎉"
                         : 'No results for "$_searchQuery"',
                     isConnected: false,
                     onPrimary: _connect,
-                    onCardTap: _showProfile,
+                    onCardTap: (u) => _showProfile(u, connectedIds),
                   ),
                   _UserList(
-                    users: _myConnections,
+                    users: myConnections,
                     emptyMessage: _searchQuery.isEmpty
                         ? 'No connections yet. Start discovering!'
                         : 'No results for "$_searchQuery"',
                     isConnected: true,
                     onPrimary: _disconnect,
-                    onCardTap: _showProfile,
+                    onCardTap: (u) => _showProfile(u, connectedIds),
                   ),
                 ],
               ),

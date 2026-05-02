@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:peerconnect/providers/auth_provider.dart';
+import 'package:peerconnect/providers/profile_provider.dart';
+import 'package:peerconnect/models/mock_data.dart';
+import 'package:peerconnect/screens/profile_details_screen.dart';
 import 'package:peerconnect/utils/constants.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -52,12 +55,22 @@ class _HomeScreenState extends State<HomeScreen>
       child: Consumer<AuthProvider>(
         builder: (ctx, auth, _) {
           final user = auth.user;
+          final profileProv = context.watch<ProfileProvider>();
+          
           if (user == null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushReplacementNamed('/login');
             });
             return const SizedBox.shrink();
           }
+
+          final String displayName = profileProv.displayName.isNotEmpty 
+              ? profileProv.displayName 
+              : (user.name.isNotEmpty ? user.name : 'User');
+          final String displayEmail = profileProv.displayEmail.isNotEmpty
+              ? profileProv.displayEmail
+              : user.email;
+
           return SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -68,15 +81,17 @@ class _HomeScreenState extends State<HomeScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _header(context, auth),
+                      _header(context, auth, displayName),
                       const SizedBox(height: 32),
-                      _profileCard(user.name, user.email, user.photoUrl),
+                      _profileCard(displayName, displayEmail, user.photoUrl),
                       const SizedBox(height: 24),
                       _toggleButton(),
                       const SizedBox(height: 16),
                       _showConnections ? _connectionsList() : _groupsList(),
                       const SizedBox(height: 24),
                       _recentActivity(),
+                      const SizedBox(height: 24),
+                      _adsGrid(),
                     ],
                   ),
                 ),
@@ -88,19 +103,19 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _header(BuildContext ctx, AuthProvider auth) {
+  Widget _header(BuildContext ctx, AuthProvider auth, String displayName) {
     return Row(
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Welcome back,',
               style: TextStyle(fontSize: 14, color: AppConstants.textSecondary),
             ),
             const SizedBox(height: 4),
             Text(
-              auth.user?.name.split(' ').first ?? 'User',
+              displayName.split(' ').first,
               style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
@@ -161,7 +176,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _connectionsList() {
-    final connections = ['Alice Johnson', 'Bob Smith', 'Charlie Brown'];
+    final connectedIds = context.watch<ProfileProvider>().connectedIds;
+    final connections = MockData.allUsers.where((u) => connectedIds.contains(u.id)).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -170,17 +187,36 @@ class _HomeScreenState extends State<HomeScreen>
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppConstants.textPrimary),
         ),
         const SizedBox(height: 12),
-        ...connections.map((name) => Card(
+        if (connections.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Text('No connections yet. Visit Connections tab to network!', style: TextStyle(color: AppConstants.textSecondary)),
+          ),
+        ...connections.map((u) => Card(
           color: AppConstants.surfaceCard,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileDetailsScreen(
+                user: u,
+                initialIsConnected: true,
+                onConnectionStatusChanged: (val) {
+                   if (val) {
+                      context.read<ProfileProvider>().addConnection(u.id);
+                   } else {
+                      context.read<ProfileProvider>().removeConnection(u.id);
+                   }
+                }
+              )));
+            },
             leading: CircleAvatar(
               backgroundColor: AppConstants.primaryColor,
-              child: Text(name[0], style: const TextStyle(color: AppConstants.textPrimary)),
+              child: Text(u.name[0].toUpperCase(), style: const TextStyle(color: AppConstants.textPrimary)),
             ),
-            title: Text(name, style: const TextStyle(color: AppConstants.textPrimary)),
-            subtitle: const Text('Online', style: TextStyle(color: AppConstants.successColor)),
+            title: Text(u.name, style: const TextStyle(color: AppConstants.textPrimary)),
+            subtitle: Text(u.role, style: const TextStyle(color: AppConstants.textSecondary)),
+            trailing: const Icon(Icons.chevron_right, color: AppConstants.textMuted),
           ),
         )),
       ],
@@ -350,6 +386,119 @@ class _HomeScreenState extends State<HomeScreen>
       ],
     ),
   );
+
+  Widget _adsGrid() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Sponsored',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppConstants.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 12),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.85,
+          ),
+          itemCount: 4,
+          itemBuilder: (context, index) {
+            return _adCard(index);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _adCard(int index) {
+    final ads = [
+      {'title': 'Premium Tools', 'desc': 'Upgrade your workflow', 'icon': Icons.star_rounded},
+      {'title': 'Cloud Storage', 'desc': '50% off annually', 'icon': Icons.cloud_done_rounded},
+      {'title': 'Webinar', 'desc': 'Mastering Networking', 'icon': Icons.video_call_rounded},
+      {'title': 'Pro Insights', 'desc': 'Data-driven tips', 'icon': Icons.analytics_rounded},
+    ];
+    final ad = ads[index];
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppConstants.surfaceCardLight,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppConstants.secondaryColor.withValues(alpha: 0.3),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppConstants.secondaryColor.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              ad['icon'] as IconData,
+              size: 28,
+              color: AppConstants.secondaryColor,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            ad['title'] as String,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: AppConstants.textPrimary,
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            ad['desc'] as String,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: AppConstants.textSecondary,
+              fontSize: 12,
+            ),
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppConstants.secondaryColor,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: const Text(
+              'Ad',
+              style: TextStyle(
+                color: AppConstants.backgroundColor,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _confirmSignOut(BuildContext ctx, AuthProvider auth) {
     showDialog(
