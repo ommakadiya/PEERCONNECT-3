@@ -47,9 +47,13 @@ class GroupModel {
 
   factory GroupModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
+    return GroupModel.fromMap(data, doc.id);
+  }
+
+  factory GroupModel.fromMap(Map<String, dynamic> data, [String? id]) {
     final membersData = data['members'] as List<dynamic>? ?? [];
     return GroupModel(
-      groupId: doc.id,
+      groupId: id ?? data['groupId'] ?? '',
       groupName: data['groupName'] ?? '',
       groupDescription: data['groupDescription'] ?? '',
       createdBy: data['createdBy'] ?? '',

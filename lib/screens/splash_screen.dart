@@ -95,16 +95,18 @@ class _SplashScreenState extends State<SplashScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 180,
-                  height: 180,
-                  padding: const EdgeInsets.all(24),
+                  width: 160,
+                  height: 160,
+                  padding: const EdgeInsets.all(28),
                   decoration: BoxDecoration(
+                    color: AppConstants.surfaceCard,
                     shape: BoxShape.circle,
+                    border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.3), width: 2),
                     boxShadow: [
                       BoxShadow(
-                        color: AppConstants.goldColor.withValues(alpha: 0.2),
+                        color: AppConstants.goldColor.withValues(alpha: 0.15),
                         blurRadius: 40,
-                        spreadRadius: 10,
+                        spreadRadius: 5,
                       ),
                     ],
                   ),

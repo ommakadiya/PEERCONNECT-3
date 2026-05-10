@@ -37,12 +37,19 @@ class AppConstants {
   static const Color errorColor = Color(0xFF7B2A2A);        // Muted Deep Red
   static const Color successColor = Color(0xFFD4A017);      // Using Gold for success
   static const Color secondaryColor = Color(0xFFD4A017);    // Gold as secondary
+  static const Color accentColor = goldColor;               // Alias for backward compatibility
 
   // ── Gradients ─────────────────────────────────────────────────────────
   static const LinearGradient brandGradient = LinearGradient(
     colors: [primaryColor, primaryDark],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient backgroundGradient = LinearGradient(
+    colors: [backgroundColor, primaryDark],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
   );
 
   static const LinearGradient premiumGradient = LinearGradient(

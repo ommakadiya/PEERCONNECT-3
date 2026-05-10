@@ -90,62 +90,57 @@ class ProfileScreen extends StatelessWidget {
         color: AppConstants.primaryDark.withValues(alpha: 0.3),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(40)),
       ),
-      padding: const EdgeInsets.fromLTRB(24, 80, 24, 40),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Column(
+      padding: const EdgeInsets.fromLTRB(24, 60, 24, 30), // Reduced top and bottom padding
+      child: Column(
+        children: [
+          Stack(
+            alignment: Alignment.center,
             children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 140,
-                    height: 140,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.3), width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppConstants.goldColor.withValues(alpha: 0.1),
-                          blurRadius: 30,
-                          spreadRadius: 5,
-                        ),
-                      ],
+              Container(
+                width: 120, // Reduced from 140
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.4), width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppConstants.goldColor.withValues(alpha: 0.15),
+                      blurRadius: 20,
+                      spreadRadius: 2,
                     ),
-                  ),
-                  CircleAvatar(
-                    radius: 65,
-                    backgroundColor: AppConstants.surfaceCard,
-                    backgroundImage: user.photoUrl.isNotEmpty ? NetworkImage(user.photoUrl) : null,
-                    child: user.photoUrl.isEmpty 
-                      ? const Icon(Icons.person_rounded, size: 60, color: AppConstants.goldColor)
-                      : null,
-                  ),
-                  Positioned(
-                    bottom: 5,
-                    right: 5,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(color: AppConstants.goldColor, shape: BoxShape.circle),
-                      child: const Icon(Icons.edit_rounded, size: 16, color: AppConstants.backgroundColor),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 24),
-              Text(
-                '${user.firstName} ${user.lastName}'.toUpperCase(),
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AppConstants.textPrimary, letterSpacing: 2),
+              CircleAvatar(
+                radius: 56, // Adjusted for 120 container
+                backgroundColor: AppConstants.surfaceCard,
+                backgroundImage: user.photoUrl.isNotEmpty ? NetworkImage(user.photoUrl) : null,
+                child: user.photoUrl.isEmpty 
+                  ? const Icon(Icons.person_rounded, size: 50, color: AppConstants.goldColor)
+                  : null,
               ),
-              const SizedBox(height: 8),
-              Text(
-                user.educationCourse.toUpperCase(),
-                style: const TextStyle(fontSize: 12, color: AppConstants.goldColor, fontWeight: FontWeight.bold, letterSpacing: 1),
+              Positioned(
+                bottom: 2,
+                right: 2,
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(color: AppConstants.goldColor, shape: BoxShape.circle),
+                  child: const Icon(Icons.edit_rounded, size: 14, color: AppConstants.backgroundColor),
+                ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 16), // Reduced from 24
+          Text(
+            '${user.firstName} ${user.lastName}'.toUpperCase(),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppConstants.textPrimary, letterSpacing: 1.5),
+          ),
+          const SizedBox(height: 4), // Reduced from 8
+          Text(
+            user.educationCourse.toUpperCase(),
+            style: const TextStyle(fontSize: 11, color: AppConstants.goldColor, fontWeight: FontWeight.bold, letterSpacing: 1),
+          ),
+        ],
       ),
     );
   }

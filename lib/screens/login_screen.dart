@@ -130,7 +130,9 @@ class _LoginScreenState extends State<LoginScreen>
     width: 140,
     height: 140,
     decoration: BoxDecoration(
+      color: AppConstants.surfaceCard,
       shape: BoxShape.circle,
+      border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.3), width: 2),
       boxShadow: [
         BoxShadow(
           color: AppConstants.goldColor.withValues(alpha: 0.2),
@@ -139,13 +141,9 @@ class _LoginScreenState extends State<LoginScreen>
         ),
       ],
     ),
-    child: CircleAvatar(
-      backgroundColor: Colors.white,
-      radius: 70,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
-      ),
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
     ),
   );
 

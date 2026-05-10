@@ -762,7 +762,7 @@ class MockData {
   static Map<String, List<ConnectionUser>> getGroups() {
     final Map<String, List<ConnectionUser>> groups = {};
     for (var user in students) {
-      final key = '\${user.migratedCity}-\${user.migratedCountry}-\${user.collegeName}-\${user.educationCourse}-\${user.jobCompany}-\${user.originCity}';
+      final key = '${user.migratedCity}-${user.migratedCountry}-${user.collegeName}-${user.educationCourse}-${user.jobCompany}-${user.originCity}';
       if (!groups.containsKey(key)) {
         groups[key] = [];
       }

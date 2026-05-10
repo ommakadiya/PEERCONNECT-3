@@ -139,7 +139,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(color: AppConstants.surfaceCardLight, borderRadius: BorderRadius.circular(12)),
-                          child: Text(_currentGroup.similarityCategory, style: const TextStyle(fontSize: 12, color: AppConstants.primaryColor)),
+                          child: Text(_currentGroup.similarityCategory, style: const TextStyle(fontSize: 12, color: AppConstants.goldColor)),
                         )
                       ],
                       if (!isMember && _currentGroup.groupType == 'manual') ...[
@@ -170,7 +170,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                       // Privacy: if current user is not connected to 'u' and 'u' is not currentUser, mask details
                       bool isConnected = currentUser != null && (currentUser.connectionIds.contains(u.uid) || u.uid == currentUser.uid);
                       
-                      String displayName = u.firstName.isNotEmpty ? '\${u.firstName} \${u.lastName}'.trim() : u.name;
+                      String displayName = u.firstName.isNotEmpty ? '${u.firstName} ${u.lastName}'.trim() : u.name;
                       if (displayName.isEmpty) displayName = 'Unknown';
                       
                       return Container(

@@ -340,7 +340,11 @@ class _HomeScreenState extends State<HomeScreen>
         border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.05)),
       ),
       child: ListTile(
-        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileDetailsScreen(user: u, isConnected: true))),
+        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileDetailsScreen(
+          user: u, 
+          isConnected: true,
+          onConnectToggle: () {}, // Handled within details if needed
+        ))),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
           backgroundColor: AppConstants.surfaceCardLight,
@@ -363,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen>
         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
         final allUsers = snapshot.data![0] as List<UserModel>;
         final manualGroupsData = snapshot.data![1] as List<Map<String, dynamic>>;
-        final List<GroupModel> manualGroups = manualGroupsData.map((data) => GroupModel.fromMap(data)).toList();
+        final List<GroupModel> manualGroups = manualGroupsData.map<GroupModel>((data) => GroupModel.fromMap(data)).toList();
         final autoGroups = _generateAutomaticGroups(allUsers);
         final List<GroupModel> allGroups = [...manualGroups, ...autoGroups];
 

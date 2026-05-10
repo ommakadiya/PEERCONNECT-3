@@ -171,16 +171,17 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
+                          color: AppConstants.surfaceCard,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.3)),
                           boxShadow: AppConstants.goldShadow,
                         ),
                         child: Image.asset(
                           'assets/Final_profile_logo.png',
-                          width: 28,
-                          height: 28,
+                          width: 22,
+                          height: 22,
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -278,12 +279,13 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 80,
-                  height: 80,
+                  width: 70,
+                  height: 70,
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
+                    color: AppConstants.surfaceCard,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.3)),
                     boxShadow: AppConstants.goldShadow,
                   ),
                   child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
