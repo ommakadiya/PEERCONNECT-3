@@ -30,17 +30,17 @@ class AppConstants {
   static const Color charcoal = Color(0xFF2D2D2D);        // Primary Text
   static const Color lightSand = Color(0xFFD8C3A5);       // Disabled/Borders
   
-  // Role-based colors (Mapped from the new system)
-  static const Color backgroundColor = softCream;         // Light Mode Base
+  // Role-based colors (Mapped for Dark Theme)
+  static const Color backgroundColor = Color(0xFF0B1222); // Deep Cinematic Navy
   static const Color primaryColor = forestGreen;
-  static const Color secondaryColor = richBrown;
+  static const Color secondaryColor = premiumGold;
   static const Color accentColor = premiumGold;
-  static const Color surfaceCard = warmBeige;
-  static const Color surfaceCardLight = Color(0xFFEFE2D0); // Slightly darker beige
-  static const Color textPrimary = charcoal;
-  static const Color textSecondary = mutedOlive;          // Muted Olive for secondary
-  static const Color textMuted = Color(0xFF9E9481);       // Sand tone for muted
-  static const Color errorColor = Color(0xFF962D2D);      // Muted red-brown for error
+  static const Color surfaceCard = Color(0xFF161E2E);     // Dark Surface
+  static const Color surfaceCardLight = Color(0xFF1F2937); 
+  static const Color textPrimary = warmBeige;             // Warm Beige text for contrast
+  static const Color textSecondary = Color(0xFF94A3B8);   // Muted Slate
+  static const Color textMuted = Color(0xFF64748B);       
+  static const Color errorColor = Color(0xFFF87171);      
   static const Color successColor = forestGreen;
 
   // ── Gradients ─────────────────────────────────────────────────────────

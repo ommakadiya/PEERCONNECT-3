@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: AppConstants.warmBeige,
+        color: AppConstants.backgroundColor,
         child: Consumer<AuthProvider>(
           builder: (ctx, auth, _) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -132,10 +132,10 @@ class _LoginScreenState extends State<LoginScreen>
     height: 130,
     decoration: BoxDecoration(
       shape: BoxShape.circle,
-      color: Colors.white,
+      color: AppConstants.surfaceCard,
       boxShadow: [
         BoxShadow(
-          color: AppConstants.premiumGold.withValues(alpha: 0.2),
+          color: Colors.black.withValues(alpha: 0.2),
           blurRadius: 30,
           spreadRadius: 2,
         ),

@@ -64,25 +64,25 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
       child: MaterialApp(
         title: AppConstants.appName,
         debugShowCheckedModeBanner: false,
+        themeMode: ThemeMode.dark,
         theme: ThemeData(
           useMaterial3: true,
-          brightness: Brightness.light,
-          colorScheme: const ColorScheme.light(
+          brightness: Brightness.dark,
+          colorScheme: const ColorScheme.dark(
             primary: AppConstants.forestGreen,
             secondary: AppConstants.premiumGold,
-            surface: AppConstants.warmBeige,
-            onSurface: AppConstants.charcoal,
+            surface: AppConstants.surfaceCard,
+            onSurface: AppConstants.textPrimary,
             onPrimary: Colors.white,
-            onSecondary: Colors.white,
             error: AppConstants.errorColor,
           ),
           scaffoldBackgroundColor: AppConstants.backgroundColor,
           textTheme: GoogleFonts.plusJakartaSansTextTheme(
-            ThemeData.light().textTheme,
+            ThemeData.dark().textTheme,
           ),
           appBarTheme: const AppBarTheme(
-            backgroundColor: AppConstants.navyBlue,
-            foregroundColor: AppConstants.warmBeige,
+            backgroundColor: AppConstants.surfaceCard,
+            foregroundColor: AppConstants.textPrimary,
             centerTitle: false,
             elevation: 0,
           ),
@@ -93,8 +93,8 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
           ),
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
-            fillColor: AppConstants.softCream,
-            labelStyle: const TextStyle(color: AppConstants.mutedOlive),
+            fillColor: AppConstants.surfaceCardLight,
+            labelStyle: const TextStyle(color: AppConstants.textSecondary),
             hintStyle: const TextStyle(color: AppConstants.textMuted),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
@@ -102,7 +102,7 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
-              borderSide: const BorderSide(color: AppConstants.lightSand),
+              borderSide: const BorderSide(color: Colors.white10),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
@@ -122,37 +122,16 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
             type: BottomNavigationBarType.fixed,
             selectedItemColor: AppConstants.premiumGold,
-            unselectedItemColor: AppConstants.lightSand,
-            backgroundColor: AppConstants.navyBlue,
+            unselectedItemColor: Colors.white30,
+            backgroundColor: AppConstants.surfaceCard,
           ),
           cardTheme: CardThemeData(
             color: AppConstants.surfaceCard,
-            elevation: 1,
-            shadowColor: Colors.black.withValues(alpha: 0.05),
+            elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
+              side: const BorderSide(color: Colors.white10),
             ),
-          ),
-        ),
-        darkTheme: ThemeData(
-          useMaterial3: true,
-          brightness: Brightness.dark,
-          colorScheme: const ColorScheme.dark(
-            primary: AppConstants.forestGreen,
-            secondary: AppConstants.premiumGold,
-            surface: Color(0xFF1E293B),
-            onSurface: AppConstants.warmBeige,
-            onPrimary: Colors.white,
-            error: AppConstants.errorColor,
-          ),
-          scaffoldBackgroundColor: const Color(0xFF0F172A),
-          textTheme: GoogleFonts.plusJakartaSansTextTheme(
-            ThemeData.dark().textTheme,
-          ),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFF1E293B),
-            foregroundColor: AppConstants.warmBeige,
-            elevation: 0,
           ),
         ),
         initialRoute: '/',
