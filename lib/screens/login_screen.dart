@@ -228,6 +228,7 @@ class _LoginScreenState extends State<LoginScreen>
                     child: Image.network(
                       'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
                       height: 20,
+                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.login_rounded, size: 18, color: Colors.blue),
                     ),
                   ),
                   const SizedBox(width: 16),

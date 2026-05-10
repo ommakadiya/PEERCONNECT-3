@@ -86,7 +86,12 @@ class _HomeScreenState extends State<HomeScreen>
         final user = auth.user;
         final profileProv = context.watch<ProfileProvider>();
 
-        if (user == null) return const SizedBox.shrink();
+        if (user == null) {
+          return const Scaffold(
+            backgroundColor: AppConstants.backgroundColor,
+            body: Center(child: CircularProgressIndicator(color: AppConstants.goldColor)),
+          );
+        }
 
         final String displayName = profileProv.displayName.isNotEmpty
             ? profileProv.displayName
