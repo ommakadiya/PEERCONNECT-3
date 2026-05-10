@@ -1,378 +1,303 @@
-import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:peerconnect/providers/auth_provider.dart';
-import 'package:peerconnect/providers/profile_provider.dart';
-import 'package:peerconnect/models/user_model.dart';
-import 'package:peerconnect/utils/constants.dart';
+import '../providers/auth_provider.dart';
+import '../providers/profile_provider.dart';
+import '../utils/constants.dart';
+import '../models/user_model.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
-
-  // Student details controllers
-  late TextEditingController _sFirstName;
-  late TextEditingController _sMiddleName;
-  late TextEditingController _sLastName;
-  late TextEditingController _sEmail;
-  late TextEditingController _sPhone;
-  late TextEditingController _sOriginCity;
-  late TextEditingController _sMigratedCity;
-  late TextEditingController _sMigratedCountry;
-  late TextEditingController _sEduCourse;
-  late TextEditingController _sSpecialization;
-  late TextEditingController _sCollege;
-  late TextEditingController _sJobCompany;
-  String _jobType = 'None';
-
-  // Parent details controllers
-  late TextEditingController _pFirstName;
-  late TextEditingController _pLastName;
-  late TextEditingController _pEmail;
-  late TextEditingController _pPhone;
-  late TextEditingController _pOriginCity;
-  late TextEditingController _pOccupation;
-  late TextEditingController _pAddress;
-
-  @override
-  void initState() {
-    super.initState();
-    final authProv = context.read<AuthProvider>();
+  Widget build(BuildContext context) {
+    final authProv = context.watch<AuthProvider>();
+    final profProv = context.watch<ProfileProvider>();
     final user = authProv.user;
     
-    // Auto-fill from Google name if first/last name are empty
-    String initialFirstName = user?.firstName ?? '';
-    String initialLastName = user?.lastName ?? '';
-    
-    if (initialFirstName.isEmpty && user?.name != null && user!.name.isNotEmpty) {
-      final parts = user.name.split(' ');
-      initialFirstName = parts.first;
-      if (parts.length > 1 && initialLastName.isEmpty) {
-        initialLastName = parts.sublist(1).join(' ');
-      }
+    if (user == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final p = user?.parentDetails ?? const ParentDetails();
-
-    _sFirstName = TextEditingController(text: initialFirstName);
-    _sMiddleName = TextEditingController(text: user?.middleName ?? '');
-    _sLastName = TextEditingController(text: initialLastName);
-    _sEmail = TextEditingController(text: user?.email ?? '');
-    _sPhone = TextEditingController(text: user?.phoneNumber ?? '');
-    _sOriginCity = TextEditingController(text: user?.originCity ?? '');
-    _sMigratedCity = TextEditingController(text: user?.migratedCity ?? '');
-    _sMigratedCountry = TextEditingController(text: user?.migratedCountry ?? '');
-    _sEduCourse = TextEditingController(text: user?.educationCourse ?? '');
-    _sSpecialization = TextEditingController(text: user?.specialization ?? '');
-    _sCollege = TextEditingController(text: user?.collegeName ?? '');
-    _sJobCompany = TextEditingController(text: user?.jobCompany ?? '');
-    _jobType = ['None', 'Part-time', 'Full-time'].contains(user?.jobType) ? (user!.jobType) : 'None';
-
-    _pFirstName = TextEditingController(text: p.firstName);
-    _pLastName = TextEditingController(text: p.lastName);
-    _pEmail = TextEditingController(text: p.emailId);
-    _pPhone = TextEditingController(text: p.phoneNumber);
-    _pOriginCity = TextEditingController(text: p.originCity);
-    _pOccupation = TextEditingController(text: p.occupation);
-    _pAddress = TextEditingController(text: p.address);
-  }
-
-  @override
-  void dispose() {
-    _sFirstName.dispose();
-    _sMiddleName.dispose();
-    _sLastName.dispose();
-    _sEmail.dispose();
-    _sPhone.dispose();
-    _sOriginCity.dispose();
-    _sMigratedCity.dispose();
-    _sMigratedCountry.dispose();
-    _sEduCourse.dispose();
-    _sSpecialization.dispose();
-    _sCollege.dispose();
-    _sJobCompany.dispose();
-
-    _pFirstName.dispose();
-    _pLastName.dispose();
-    _pEmail.dispose();
-    _pPhone.dispose();
-    _pOriginCity.dispose();
-    _pOccupation.dispose();
-    _pAddress.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null && mounted) {
-      context.read<ProfileProvider>().setLocalPhotoPath(pickedFile.path);
-    }
-  }
-
-  Future<void> _saveProfile() async {
-    if (_formKey.currentState!.validate()) {
-      final authProv = context.read<AuthProvider>();
-      final profProv = context.read<ProfileProvider>();
-      final user = authProv.user;
-      if (user == null) return;
-
-      final updatedParent = ParentDetails(
-        firstName: _pFirstName.text.trim(),
-        lastName: _pLastName.text.trim(),
-        emailId: _pEmail.text.trim(),
-        phoneNumber: _pPhone.text.trim(),
-        originCity: _pOriginCity.text.trim(),
-        occupation: _pOccupation.text.trim(),
-        address: _pAddress.text.trim(),
-      );
-
-      final updatedUser = user.copyWith(
-        firstName: _sFirstName.text.trim(),
-        middleName: _sMiddleName.text.trim(),
-        lastName: _sLastName.text.trim(),
-        email: _sEmail.text.trim(),
-        phoneNumber: _sPhone.text.trim(),
-        originCity: _sOriginCity.text.trim(),
-        migratedCity: _sMigratedCity.text.trim(),
-        migratedCountry: _sMigratedCountry.text.trim(),
-        educationCourse: _sEduCourse.text.trim(),
-        specialization: _sSpecialization.text.trim(),
-        collegeName: _sCollege.text.trim(),
-        jobType: _jobType,
-        jobCompany: _sJobCompany.text.trim(),
-        parentDetails: updatedParent,
-        role: user.role == UserRole.none ? UserRole.child : user.role, // Ensure role is set to avoid re-prompt
-      );
-      
-      final updatedRecommendations = RecommendationFields.fromUserAndParent(updatedUser, updatedParent);
-      final finalUser = updatedUser.copyWith(recommendationFields: updatedRecommendations);
-
-      await profProv.saveProfile(finalUser);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile saved successfully'), backgroundColor: AppConstants.successColor),
-        );
-      }
-    }
-  }
-
-  void _signOut() {
-    context.read<AuthProvider>().signOut();
-    Navigator.of(context).pushReplacementNamed('/login');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final profProv = context.watch<ProfileProvider>();
-    final authProv = context.watch<AuthProvider>();
-    
     return Scaffold(
       backgroundColor: AppConstants.backgroundColor,
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(AppConstants.paddingLg),
-            children: [
-              const Center(
-                child: Text(
-                  'Profile',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: AppConstants.textPrimary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppConstants.paddingXl),
-              
-              // Profile Image
-              Center(
-                child: Stack(
-                  children: [
-                    GestureDetector(
-                      onTap: _pickImage,
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: AppConstants.surfaceCardLight,
-                        backgroundImage: profProv.localPhotoPath != null
-                            ? FileImage(File(profProv.localPhotoPath!)) as ImageProvider
-                            : (authProv.user?.photoUrl.isNotEmpty == true 
-                                ? NetworkImage(authProv.user!.photoUrl) 
-                                : null),
-                        child: (profProv.localPhotoPath == null && (authProv.user?.photoUrl.isEmpty ?? true))
-                            ? const Icon(Icons.person, size: 50, color: AppConstants.textMuted)
-                            : null,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: _pickImage,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppConstants.secondaryColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppConstants.surfaceCard, width: 2),
-                          ),
-                          child: const Icon(Icons.camera_alt, size: 14, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppConstants.paddingXl),
-
-              // Student Details Section
-              _buildSectionCard(
-                title: 'Student Details',
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildPremiumHeader(context, user),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppConstants.paddingLg),
+              child: Column(
                 children: [
-                  _buildTextField('First Name', _sFirstName),
-                  _buildTextField('Middle Name', _sMiddleName, required: false),
-                  _buildTextField('Last Name', _sLastName),
-                  _buildTextField('Email ID', _sEmail, keyboardType: TextInputType.emailAddress),
-                  _buildTextField('Phone Number', _sPhone, keyboardType: TextInputType.phone),
-                  _buildTextField('Origin City', _sOriginCity),
-                  _buildTextField('Migrated City', _sMigratedCity),
-                  _buildTextField('Migrated Country', _sMigratedCountry),
-                  _buildTextField('Education Course', _sEduCourse),
-                  _buildTextField('Specialization', _sSpecialization),
-                  _buildTextField('College Name', _sCollege),
-                  _buildDropdown('Job Type', ['None', 'Part-time', 'Full-time'], _jobType, (val) {
-                    setState(() => _jobType = val!);
-                  }),
-                  _buildTextField('Job Company', _sJobCompany, required: false),
+                  const SizedBox(height: 24),
+                  _buildStatsSection(user),
+                  const SizedBox(height: 24),
+                  _buildSectionCard(
+                    title: 'Student Details',
+                    icon: Icons.school_rounded,
+                    onEdit: () => Navigator.pushNamed(context, '/edit-profile'),
+                    children: [
+                      _buildInfoRow(Icons.person_outline, 'Full Name', '${user.firstName} ${user.lastName}'),
+                      _buildInfoRow(Icons.email_outlined, 'Email', user.email),
+                      _buildInfoRow(Icons.phone_outlined, 'Phone', user.phoneNumber),
+                      _buildInfoRow(Icons.location_on_outlined, 'Origin', user.originCity),
+                      _buildInfoRow(Icons.map_outlined, 'Current Location', '${user.migratedCity}, ${user.migratedCountry}'),
+                      _buildInfoRow(Icons.menu_book_rounded, 'Course', '${user.educationCourse} (${user.specialization})'),
+                      _buildInfoRow(Icons.apartment_rounded, 'College', user.collegeName),
+                      _buildInfoRow(Icons.work_outline_rounded, 'Job Status', '${user.jobType} at ${user.jobCompany}'),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildSectionCard(
+                    title: 'Parent Details',
+                    icon: Icons.family_restroom_rounded,
+                    onEdit: () => Navigator.pushNamed(context, '/edit-profile'),
+                    badge: 'Connected',
+                    children: [
+                      _buildInfoRow(Icons.person_outline, 'Parent Name', '${user.parentDetails.firstName} ${user.parentDetails.lastName}'),
+                      _buildInfoRow(Icons.phone_outlined, 'Phone', user.parentDetails.phoneNumber),
+                      _buildInfoRow(Icons.work_outline_rounded, 'Occupation', user.parentDetails.occupation),
+                      _buildInfoRow(Icons.home_outlined, 'Home Address', user.parentDetails.address),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  _buildSettingsSection(context),
+                  const SizedBox(height: 32),
+                  _buildLogoutButton(context, authProv),
+                  const SizedBox(height: 48),
                 ],
               ),
-              const SizedBox(height: AppConstants.paddingLg),
-
-              // Parent Details Section
-              _buildSectionCard(
-                title: 'Parent Details',
-                children: [
-                  _buildTextField('Parent First Name', _pFirstName),
-                  _buildTextField('Parent Last Name', _pLastName),
-                  _buildTextField('Parent Email ID', _pEmail, keyboardType: TextInputType.emailAddress),
-                  _buildTextField('Parent Phone Number', _pPhone, keyboardType: TextInputType.phone),
-                  _buildTextField('Parent Origin City', _pOriginCity),
-                  _buildTextField('Parent Occupation', _pOccupation),
-                  _buildTextField('Parent Address', _pAddress),
-                ],
-              ),
-              const SizedBox(height: AppConstants.paddingXl),
-
-              SizedBox(
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: profProv.isSaving ? null : _saveProfile,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppConstants.primaryColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: profProv.isSaving
-                      ? const CircularProgressIndicator(color: AppConstants.textPrimary)
-                      : const Text('Save Profile', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-              ),
-              const SizedBox(height: AppConstants.paddingXl),
-              Center(
-                child: TextButton.icon(
-                  onPressed: _signOut, 
-                  icon: const Icon(Icons.logout, color: AppConstants.errorColor),
-                  label: const Text('Sign Out', style: TextStyle(color: AppConstants.errorColor)),
-                ),
-              )
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionCard({required String title, required List<Widget> children}) {
+  Widget _buildPremiumHeader(BuildContext context, UserModel user) {
     return Container(
-      padding: const EdgeInsets.all(AppConstants.paddingLg),
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: AppConstants.surfaceCard,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadiusLg),
-        border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.2)),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppConstants.primaryColor.withValues(alpha: 0.15),
+            AppConstants.backgroundColor,
+          ],
+        ),
       ),
+      padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppConstants.secondaryColor,
-            ),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                width: 130,
+                height: 130,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.3), width: 2),
+                ),
+              ),
+              CircleAvatar(
+                radius: 60,
+                backgroundColor: AppConstants.surfaceCardLight,
+                backgroundImage: user.photoUrl.isNotEmpty ? NetworkImage(user.photoUrl) : null,
+                child: user.photoUrl.isEmpty 
+                  ? Text(user.firstName.isNotEmpty ? user.firstName[0].toUpperCase() : '?', 
+                      style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppConstants.primaryColor))
+                  : null,
+              ),
+            ],
           ),
-          const SizedBox(height: AppConstants.paddingLg),
-          ...children,
+          const SizedBox(height: 20),
+          Text(
+            '${user.firstName} ${user.lastName}',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppConstants.textPrimary),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            user.educationCourse.isNotEmpty ? user.educationCourse : 'Update your course',
+            style: const TextStyle(fontSize: 14, color: AppConstants.primaryColor, fontWeight: FontWeight.w500),
+          ),
+          Text(
+            '${user.migratedCity}, ${user.migratedCountry}',
+            style: const TextStyle(fontSize: 13, color: AppConstants.textSecondary),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTextField(
-    String label, 
-    TextEditingController controller, {
-    bool required = true, 
-    TextInputType keyboardType = TextInputType.text
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        style: const TextStyle(color: AppConstants.textPrimary),
-        decoration: InputDecoration(
-          labelText: label + (required ? ' *' : ''),
-          labelStyle: const TextStyle(color: AppConstants.textSecondary),
-          filled: true,
-          fillColor: AppConstants.surfaceCardLight,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
+  Widget _buildStatsSection(UserModel user) {
+    return Row(
+      children: [
+        _buildStatCard('Connections', '${user.connectionIds.length}', Icons.people_outline),
+        const SizedBox(width: 12),
+        _buildStatCard('Groups', '4', Icons.groups_outlined), // Placeholder
+        const SizedBox(width: 12),
+        _buildStatCard('Safety Score', '98%', Icons.verified_user_outlined),
+      ],
+    );
+  }
+
+  Widget _buildStatCard(String label, String value, IconData icon) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: AppConstants.surfaceCard,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.1)),
         ),
-        validator: required
-            ? (value) => (value == null || value.trim().isEmpty) ? 'Required' : null
-            : null,
+        child: Column(
+          children: [
+            Icon(icon, color: AppConstants.primaryColor, size: 20),
+            const SizedBox(height: 8),
+            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppConstants.textPrimary)),
+            Text(label, style: const TextStyle(fontSize: 10, color: AppConstants.textMuted)),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildDropdown(String label, List<String> items, String value, void Function(String?) onChanged) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        items: items.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(color: AppConstants.textPrimary)))).toList(),
-        onChanged: onChanged,
-        dropdownColor: AppConstants.surfaceCard,
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: AppConstants.textSecondary),
-          filled: true,
-          fillColor: AppConstants.surfaceCardLight,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+  Widget _buildSectionCard({
+    required String title, 
+    required IconData icon, 
+    required List<Widget> children, 
+    required VoidCallback onEdit,
+    String? badge,
+  }) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppConstants.surfaceCard,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 12, 12),
+            child: Row(
+              children: [
+                Icon(icon, color: AppConstants.primaryColor, size: 22),
+                const SizedBox(width: 12),
+                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppConstants.textPrimary)),
+                if (badge != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(color: AppConstants.successColor.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
+                    child: Text(badge, style: const TextStyle(fontSize: 10, color: AppConstants.successColor, fontWeight: FontWeight.bold)),
+                  ),
+                ],
+                const Spacer(),
+                IconButton(
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit_outlined, size: 18, color: AppConstants.textSecondary),
+                ),
+              ],
+            ),
           ),
-        ),
+          const Divider(height: 1, color: AppConstants.surfaceDark),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(children: children),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: AppConstants.surfaceCardLight, borderRadius: BorderRadius.circular(10)),
+            child: Icon(icon, size: 16, color: AppConstants.secondaryColor),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(fontSize: 11, color: AppConstants.textMuted)),
+                Text(value.isEmpty ? 'Not set' : value, 
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppConstants.textPrimary)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsSection(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppConstants.surfaceCard,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        children: [
+          _buildSettingsTile(Icons.notifications_outlined, 'Notifications', () {}),
+          _buildSettingsTile(Icons.security_outlined, 'Security & Password', () {}),
+          _buildSettingsTile(Icons.privacy_tip_outlined, 'Privacy Policy', () => Navigator.pushNamed(context, '/privacy')),
+          _buildSettingsTile(Icons.info_outline_rounded, 'About Guardian Net', () => Navigator.pushNamed(context, '/about')),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(icon, color: AppConstants.textSecondary, size: 22),
+      title: Text(title, style: const TextStyle(fontSize: 15, color: AppConstants.textPrimary)),
+      trailing: const Icon(Icons.chevron_right_rounded, color: AppConstants.textMuted),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context, AuthProvider auth) {
+    return OutlinedButton(
+      onPressed: () => _showLogoutConfirmation(context, auth),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppConstants.errorColor,
+        side: const BorderSide(color: AppConstants.errorColor),
+        minimumSize: const Size(double.infinity, 56),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      child: const Text('Log Out', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+    );
+  }
+
+  void _showLogoutConfirmation(BuildContext context, AuthProvider auth) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppConstants.surfaceCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Log Out', style: TextStyle(color: AppConstants.textPrimary)),
+        content: const Text('Are you sure you want to log out from Guardian Net?', style: TextStyle(color: AppConstants.textSecondary)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: AppConstants.textMuted))),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              auth.signOut();
+              Navigator.of(context).pushReplacementNamed('/login');
+            },
+            child: const Text('Log Out', style: TextStyle(color: AppConstants.errorColor, fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
     );
   }

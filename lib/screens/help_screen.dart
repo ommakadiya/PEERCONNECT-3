@@ -28,46 +28,26 @@ class Advertisement {
 const _adsData = [
   Advertisement(
     id: '1',
-    title: 'Kitchen Staff Hiring',
-    type: 'Job Opportunity',
-    description: 'Hiring kitchen staff for part-time and full-time roles. Suitable for basic cooking and kitchen work.',
-    contact: 'Apply within or send CV',
-    website: 'Not Available',
-    location: 'Not specified',
-    image: 'assets/images/ad1.jpg',
-  ),
-  Advertisement(
-    id: '2',
-    title: 'Restaurant Staff Hiring',
-    type: 'Job Opportunity',
-    description: 'Hiring Commis Chef, Receptionist, and Kitchen Staff. Includes meals and flexible shifts.',
-    contact: '6356385085',
-    website: 'Not Available',
-    location: 'Rajkot',
-    image: 'assets/images/ad2.jpg',
-  ),
-  Advertisement(
-    id: '3',
     title: 'PG Diploma Admission',
     type: 'Education',
     description: 'PG Diploma in Advertising and MSL Management Associate program. Focus on student success and career growth.',
     contact: '+91 9833806739',
     website: 'Not Available',
-    location: 'Not specified',
+    location: 'St. Pauls Institute',
     image: 'assets/images/ad3.jpg',
   ),
   Advertisement(
-    id: '4',
+    id: '2',
     title: 'PG Abroad After MBBS',
     type: 'Education / Study Abroad',
     description: 'Opportunities for Indian MBBS students to pursue PG abroad with course and fee guidance.',
     contact: 'Not Available',
     website: 'Careers360',
-    location: 'India',
+    location: 'Global Medical Education',
     image: 'assets/images/ad4.jpg',
   ),
   Advertisement(
-    id: '5',
+    id: '3',
     title: 'Work in Germany',
     type: 'Job Opportunity (International)',
     description: 'Technical job opportunities in Germany for professionals with minimum 5 years experience.',
@@ -75,6 +55,26 @@ const _adsData = [
     website: 'www.globalgateways.co',
     location: 'Germany / India',
     image: 'assets/images/ad5.jpg',
+  ),
+  Advertisement(
+    id: '4',
+    title: 'Kitchen Staff Hiring',
+    type: 'Job Opportunity',
+    description: 'Hiring kitchen staff for part-time and full-time roles. Suitable for basic cooking and kitchen work.',
+    contact: 'Apply within or send CV',
+    website: 'Not Available',
+    location: 'Local Restaurant',
+    image: 'assets/images/ad1.jpg',
+  ),
+  Advertisement(
+    id: '5',
+    title: 'Restaurant Staff Hiring',
+    type: 'Job Opportunity',
+    description: 'Hiring Commis Chef, Receptionist, and Kitchen Staff. Includes meals and flexible shifts.',
+    contact: '6356385085',
+    website: 'Not Available',
+    location: 'Rajkot',
+    image: 'assets/images/ad2.jpg',
   ),
 ];
 
@@ -178,7 +178,7 @@ class _HelpScreenState extends State<HelpScreen> {
                     crossAxisCount: columns,
                     crossAxisSpacing: AppConstants.paddingMd,
                     mainAxisSpacing: AppConstants.paddingMd,
-                    mainAxisExtent: 220, // fixed height for consistent card size
+                    mainAxisExtent: 340, // Increased height for posters
                   ),
                 );
               },
@@ -243,7 +243,8 @@ class _AdCard extends StatelessWidget {
                     tag: 'ad_image_${ad.id}',
                     child: Image.asset(
                       ad.image,
-                      fit: BoxFit.contain,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           color: AppConstants.surfaceCardLight,
@@ -375,9 +376,9 @@ class _AdDetailSheet extends StatelessWidget {
                     child: SizedBox(
                       height: 220,
                       width: double.infinity,
-                      child: Image.asset(
-                        ad.image,
-                        fit: BoxFit.contain,
+                        child: Image.asset(
+                          ad.image,
+                          fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
                             color: AppConstants.surfaceCardLight,

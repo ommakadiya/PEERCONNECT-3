@@ -14,6 +14,8 @@ import 'package:peerconnect/screens/profile_screen.dart';
 import 'package:peerconnect/providers/profile_provider.dart';
 import 'package:peerconnect/screens/role_selection_screen.dart';
 import 'package:peerconnect/screens/privacy_policy_screen.dart';
+import 'package:peerconnect/screens/edit_profile_screen.dart';
+import 'package:peerconnect/screens/about_screen.dart';
 import 'package:peerconnect/utils/constants.dart';
 
 /// Root widget of the GuardianNet application.
@@ -135,6 +137,8 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
           '/': (_) => const SplashScreen(),
           '/login': (_) => const LoginScreen(),
           '/privacy': (_) => const PrivacyPolicyScreen(),
+          '/about': (_) => const AboutScreen(),
+          '/edit-profile': (_) => const EditProfileScreen(),
           '/role': (_) => const RoleSelectionScreen(),
           '/main': (routeCtx) => Consumer2<AuthProvider, ProfileProvider>(
             builder: (context, auth, profileProv, __) {
@@ -349,7 +353,7 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
                 }),
                 _drawerItem(
                   Icons.logout_rounded,
-                  'Sign Out',
+                  'Log Out',
                   () {
                     Navigator.pop(context);
                     auth.signOut().then((_) {

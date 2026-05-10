@@ -1,25 +1,32 @@
 import 'package:flutter/foundation.dart';
 import 'package:peerconnect/models/user_model.dart';
 import 'package:peerconnect/services/firestore_service.dart';
+import 'package:peerconnect/services/storage_service.dart';
+import 'dart:io';
 
 export 'package:peerconnect/models/user_model.dart' show UserRole;
 
 class ProfileProvider extends ChangeNotifier {
   final FirestoreService _firestoreService;
+  final StorageService _storageService;
 
   String? _localPhotoPath;
   bool _isSaving = false;
+  bool _isUploading = false;
   String? _saveError;
   final Set<String> _connectedIds = {};
 
   UserModel? _user;
 
-  ProfileProvider({FirestoreService? firestoreService})
-      : _firestoreService = firestoreService ?? FirestoreService();
+  ProfileProvider({FirestoreService? firestoreService, StorageService? storageService})
+      : _firestoreService = firestoreService ?? FirestoreService(),
+        _storageService = storageService ?? StorageService();
 
   Set<String> get connectedIds => _connectedIds;
+  UserModel? get user => _user;
   String? get localPhotoPath => _localPhotoPath;
   bool get isSaving => _isSaving;
+  bool get isUploading => _isUploading;
   String? get saveError => _saveError;
 
   void setUser(UserModel user) {
@@ -54,13 +61,29 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _firestoreService.updateUser(userModel);
-      _user = userModel;
+      UserModel updatedUser = userModel;
+      
+      // Handle photo upload if local path exists
+      if (_localPhotoPath != null) {
+        _isUploading = true;
+        notifyListeners();
+        
+        final downloadUrl = await _storageService.uploadProfilePhoto(userModel.uid, File(_localPhotoPath!));
+        if (downloadUrl != null) {
+          updatedUser = userModel.copyWith(photoUrl: downloadUrl);
+          _localPhotoPath = null; // Clear local path after successful upload
+        }
+        _isUploading = false;
+      }
+
+      await _firestoreService.updateUser(updatedUser);
+      _user = updatedUser;
     } catch (e) {
       _saveError = e.toString().replaceFirst('Exception: ', '');
       debugPrint('Firestore saveProfile error: $e');
     } finally {
       _isSaving = false;
+      _isUploading = false;
       notifyListeners();
     }
   }

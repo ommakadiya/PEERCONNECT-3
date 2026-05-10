@@ -172,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen>
         const Spacer(),
         _iconBtn(Icons.notifications_none_rounded, () {}),
         const SizedBox(width: 8),
-        _iconBtn(Icons.logout_rounded, () => _confirmSignOut(ctx, auth)),
+        _iconBtn(Icons.logout_rounded, () => _confirmLogOut(ctx, auth)),
       ],
     );
   }
@@ -808,18 +808,18 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void _confirmSignOut(BuildContext ctx, AuthProvider auth) {
+  void _confirmLogOut(BuildContext ctx, AuthProvider auth) {
     showDialog(
       context: ctx,
       builder: (_) => AlertDialog(
         backgroundColor: AppConstants.surfaceCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
-          'Sign Out',
+          'Log Out',
           style: TextStyle(color: AppConstants.textPrimary),
         ),
         content: const Text(
-          'Are you sure you want to sign out?',
+          'Are you sure you want to log out?',
           style: TextStyle(color: AppConstants.textSecondary),
         ),
         actions: [
@@ -840,7 +840,7 @@ class _HomeScreenState extends State<HomeScreen>
               });
             },
             child: const Text(
-              'Sign Out',
+              'Log Out',
               style: TextStyle(color: AppConstants.errorColor),
             ),
           ),
