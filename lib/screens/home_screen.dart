@@ -4,10 +4,14 @@ import 'package:provider/provider.dart';
 import 'package:peerconnect/providers/auth_provider.dart';
 import 'package:peerconnect/providers/profile_provider.dart';
 import 'package:peerconnect/models/mock_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:peerconnect/models/user_model.dart';
 import 'package:peerconnect/screens/profile_details_screen.dart';
 import 'package:peerconnect/utils/constants.dart';
 import 'package:peerconnect/models/ad.dart';
 import 'package:peerconnect/screens/ad_details_screen.dart';
+import 'package:peerconnect/models/group_model.dart';
+import 'package:peerconnect/screens/group_details_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -39,6 +43,38 @@ class _HomeScreenState extends State<HomeScreen>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
+    
+    // Auto-seed mock data if database is empty
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndSeed();
+    });
+  }
+
+  Future<void> _checkAndSeed() async {
+    final auth = context.read<AuthProvider>();
+    
+    final List<UserModel> mockUsers = MockData.students.map((s) => UserModel(
+      uid: s.id,
+      name: '\${s.firstName} \${s.lastName}'.trim(),
+      email: s.email,
+      photoUrl: '',
+      createdAt: DateTime.now(),
+      firstName: s.firstName,
+      middleName: s.middleName,
+      lastName: s.lastName,
+      phoneNumber: s.phoneNumber,
+      originCity: s.originCity,
+      migratedCity: s.migratedCity,
+      migratedCountry: s.migratedCountry,
+      educationCourse: s.educationCourse,
+      specialization: s.specialization,
+      collegeName: s.collegeName,
+      jobType: s.jobType,
+      jobCompany: s.jobCompany,
+    )).toList();
+    
+    await auth.firestoreService.seedMockData(mockUsers);
+    if (mounted) setState(() {});
   }
 
   @override
@@ -114,23 +150,24 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _header(BuildContext ctx, AuthProvider auth, String displayName) {
     return Row(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Welcome back,',
-              style: TextStyle(fontSize: 14, color: AppConstants.textSecondary),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              displayName.split(' ').first,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                color: AppConstants.textPrimary,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Welcome back,',
+                style: TextStyle(fontSize: 12, color: AppConstants.textSecondary.withValues(alpha: 0.8)),
               ),
-            ),
-          ],
+              Text(
+                displayName.split(' ').first,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
         const Spacer(),
         _iconBtn(Icons.notifications_none_rounded, () {}),
@@ -185,73 +222,282 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _connectionsList() {
     final connectedIds = context.watch<ProfileProvider>().connectedIds;
-    final connections = MockData.allUsers.where((u) => connectedIds.contains(u.id)).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Connected Peers',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppConstants.textPrimary),
-        ),
-        const SizedBox(height: 12),
-        if (connections.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
-            child: Text('No connections yet. Visit Connections tab to network!', style: TextStyle(color: AppConstants.textSecondary)),
-          ),
-        ...connections.map((u) => Card(
-          color: AppConstants.surfaceCard,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileDetailsScreen(
-                user: u,
-                initialIsConnected: true,
-                onConnectionStatusChanged: (val) {
-                   if (val) {
-                      context.read<ProfileProvider>().addConnection(u.id);
-                   } else {
-                      context.read<ProfileProvider>().removeConnection(u.id);
-                   }
-                }
-              )));
-            },
-            leading: CircleAvatar(
-              backgroundColor: AppConstants.primaryColor,
-              child: Text(u.name[0].toUpperCase(), style: const TextStyle(color: AppConstants.textPrimary)),
+    
+    return FutureBuilder<List<UserModel>>(
+      future: context.read<AuthProvider>().firestoreService.getAllUsers(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+        final connections = snapshot.data!.where((u) => connectedIds.contains(u.uid)).toList();
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Connected Peers',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppConstants.textPrimary),
             ),
-            title: Text(u.name, style: const TextStyle(color: AppConstants.textPrimary)),
-            subtitle: Text(u.role, style: const TextStyle(color: AppConstants.textSecondary)),
-            trailing: const Icon(Icons.chevron_right, color: AppConstants.textMuted),
-          ),
-        )),
-      ],
+            const SizedBox(height: 12),
+            if (connections.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text('No connections yet. Visit Connections tab to network!', style: TextStyle(color: AppConstants.textSecondary)),
+              ),
+            ...connections.map((u) => Card(
+              color: AppConstants.surfaceCard,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileDetailsScreen(
+                    user: u,
+                    isConnected: true,
+                    onConnectToggle: () {
+                      context.read<ProfileProvider>().removeConnection(u.uid);
+                      // Update UI and state manually if needed
+                    }
+                  )));
+                },
+                leading: CircleAvatar(
+                  backgroundColor: AppConstants.primaryColor,
+                  child: Text(u.name.isNotEmpty ? u.name[0].toUpperCase() : '?', style: const TextStyle(color: AppConstants.textPrimary)),
+                ),
+                title: Text(u.name, style: const TextStyle(color: AppConstants.textPrimary)),
+                subtitle: Text(u.educationCourse.isNotEmpty ? u.educationCourse : 'Student', style: const TextStyle(color: AppConstants.textSecondary)),
+                trailing: const Icon(Icons.chevron_right, color: AppConstants.textMuted),
+              ),
+            )),
+          ],
+        );
+      }
     );
   }
 
   Widget _groupsList() {
-    final groups = ['Tech Enthusiasts', 'Design Team', 'Project Alpha'];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'My Groups',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppConstants.textPrimary),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Groups',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppConstants.textPrimary),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add_circle_outline, color: AppConstants.primaryColor),
+              onPressed: _showCreateGroupDialog,
+              tooltip: 'Create Group',
+            ),
+          ],
         ),
         const SizedBox(height: 12),
-        ...groups.map((group) => Card(
-          color: AppConstants.surfaceCard,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            leading: const Icon(Icons.group, color: AppConstants.accentColor),
-            title: Text(group, style: const TextStyle(color: AppConstants.textPrimary)),
-            subtitle: const Text('3 members', style: TextStyle(color: AppConstants.textSecondary)),
-          ),
-        )),
+        FutureBuilder(
+          future: Future.wait([
+            context.read<AuthProvider>().firestoreService.getAllUsers(),
+            context.read<AuthProvider>().firestoreService.getManualGroups(),
+          ]),
+          builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+            if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+            
+            final allUsers = snapshot.data![0] as List<UserModel>;
+            final manualGroupsData = snapshot.data![1] as List<Map<String, dynamic>>;
+            
+            final List<GroupModel> manualGroups = manualGroupsData.map((data) => GroupModel(
+              groupId: data['id'],
+              groupName: data['groupName'] ?? '',
+              groupDescription: data['groupDescription'] ?? '',
+              createdBy: data['createdBy'] ?? '',
+              createdAt: data['createdAt']?.toDate() ?? DateTime.now(),
+              groupType: data['groupType'] ?? 'manual',
+              similarityCategory: data['similarityCategory'] ?? '',
+              members: (data['members'] as List<dynamic>? ?? []).map((e) => GroupMember.fromMap(e as Map<String, dynamic>)).toList(),
+            )).toList();
+
+            final autoGroups = _generateAutomaticGroups(allUsers);
+            
+            final List<GroupModel> allGroups = [...manualGroups, ...autoGroups];
+            
+            if (allGroups.isEmpty) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: Text('No groups yet. Create one!', style: TextStyle(color: AppConstants.textSecondary)),
+              );
+            }
+
+            return Column(
+              children: allGroups.map((group) => Card(
+                color: AppConstants.surfaceCard,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                margin: const EdgeInsets.only(bottom: 12),
+                elevation: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.2)),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(16),
+                    leading: CircleAvatar(
+                      backgroundColor: AppConstants.surfaceCardLight,
+                      child: Icon(group.groupType == 'automatic' ? Icons.auto_awesome : Icons.group, color: AppConstants.primaryColor),
+                    ),
+                    title: Text(
+                      group.groupName, 
+                      style: const TextStyle(color: AppConstants.textPrimary, fontWeight: FontWeight.bold, fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
+                        Text(
+                          group.groupDescription, 
+                          style: const TextStyle(color: AppConstants.textSecondary, fontSize: 13),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              const Icon(Icons.people, size: 14, color: AppConstants.accentColor),
+                              const SizedBox(width: 4),
+                              Text('${group.members.length} Members', style: const TextStyle(color: AppConstants.textMuted, fontSize: 12)),
+                              if (group.similarityCategory.isNotEmpty) ...[
+                                const SizedBox(width: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(color: AppConstants.surfaceCardLight, borderRadius: BorderRadius.circular(8)),
+                                  child: Text(group.similarityCategory, style: const TextStyle(fontSize: 10, color: AppConstants.primaryColor)),
+                                )
+                              ]
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => GroupDetailsScreen(group: group)));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppConstants.primaryColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                      child: const Text('View', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ),
+              )).toList(),
+            );
+          }
+        ),
       ],
+    );
+  }
+
+  List<GroupModel> _generateAutomaticGroups(List<UserModel> allUsers) {
+    Map<String, List<UserModel>> groupsMap = {};
+
+    for (var u in allUsers) {
+      if (u.originCity.isNotEmpty) {
+        groupsMap.putIfAbsent('${u.originCity} Students Network', () => []).add(u);
+      }
+      if (u.educationCourse.isNotEmpty) {
+        groupsMap.putIfAbsent('${u.educationCourse} Community', () => []).add(u);
+      }
+      if (u.jobCompany.isNotEmpty) {
+        groupsMap.putIfAbsent('${u.jobCompany} Student Developers', () => []).add(u);
+      }
+      if (u.migratedCity.isNotEmpty) {
+        groupsMap.putIfAbsent('${u.migratedCity} Migrants Circle', () => []).add(u);
+      }
+    }
+
+    List<GroupModel> autoGroups = [];
+    groupsMap.forEach((name, members) {
+      if (members.length > 2) {
+        autoGroups.add(GroupModel(
+          groupId: 'auto_\${name.replaceAll(" ", "_")}',
+          groupName: name,
+          groupDescription: 'Automatically generated group based on similarity.',
+          createdBy: 'system',
+          createdAt: DateTime.now(),
+          groupType: 'automatic',
+          similarityCategory: name.split(' ').first,
+          members: members.map((m) => GroupMember(userId: m.uid, joinedAt: DateTime.now())).toList(),
+        ));
+      }
+    });
+    return autoGroups;
+  }
+
+  void _showCreateGroupDialog() {
+    final nameController = TextEditingController();
+    final descController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: AppConstants.surfaceCard,
+          title: const Text('Create Group', style: TextStyle(color: AppConstants.textPrimary)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                style: const TextStyle(color: AppConstants.textPrimary),
+                decoration: const InputDecoration(labelText: 'Group Name', labelStyle: TextStyle(color: AppConstants.textSecondary)),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: descController,
+                style: const TextStyle(color: AppConstants.textPrimary),
+                decoration: const InputDecoration(labelText: 'Group Description', labelStyle: TextStyle(color: AppConstants.textSecondary)),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel', style: TextStyle(color: AppConstants.textMuted)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final authProv = context.read<AuthProvider>();
+                final user = authProv.user;
+                if (user != null && nameController.text.isNotEmpty) {
+                  final groupData = {
+                    'groupName': nameController.text.trim(),
+                    'groupDescription': descController.text.trim(),
+                    'createdBy': user.uid,
+                    'createdAt': FieldValue.serverTimestamp(),
+                    'groupType': 'manual',
+                    'similarityCategory': 'Custom',
+                    'members': [
+                      {
+                        'userId': user.uid,
+                        'joinedAt': Timestamp.now(),
+                      }
+                    ],
+                  };
+                  await authProv.firestoreService.createGroup(groupData);
+                  if (ctx.mounted) {
+                    Navigator.pop(ctx);
+                    setState(() {}); // Refresh future builder
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: AppConstants.primaryColor),
+              child: const Text('Create'),
+            ),
+          ],
+        );
+      },
     );
   }
 

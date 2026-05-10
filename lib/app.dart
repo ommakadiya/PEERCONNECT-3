@@ -16,18 +16,18 @@ import 'package:peerconnect/screens/role_selection_screen.dart';
 import 'package:peerconnect/screens/privacy_policy_screen.dart';
 import 'package:peerconnect/utils/constants.dart';
 
-/// Root widget of the PeerConnect application.
+/// Root widget of the GuardianNet application.
 ///
 /// Sets up Provider at the top of the widget tree and
 /// defines named routes for navigation.
-class PeerConnectApp extends StatefulWidget {
-  const PeerConnectApp({super.key});
+class GuardianNetApp extends StatefulWidget {
+  const GuardianNetApp({super.key});
 
   @override
-  State<PeerConnectApp> createState() => _PeerConnectAppState();
+  State<GuardianNetApp> createState() => _GuardianNetAppState();
 }
 
-class _PeerConnectAppState extends State<PeerConnectApp> {
+class _GuardianNetAppState extends State<GuardianNetApp> {
   int _selectedIndex = 0;
 
   static const List<Widget> _pages = <Widget>[
@@ -54,7 +54,9 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
           ),
         ),
         ChangeNotifierProvider<ProfileProvider>(
-          create: (_) => ProfileProvider(),
+          create: (_) => ProfileProvider(
+            firestoreService: FirestoreService(),
+          ),
         ),
       ],
       child: MaterialApp(
@@ -68,15 +70,23 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
             secondary: AppConstants.secondaryColor,
             surface: AppConstants.surfaceCard,
             onSurface: AppConstants.textPrimary,
-            onPrimary: AppConstants.textPrimary,
-            onSecondary: AppConstants.textPrimary,
+            onPrimary: Color(0xFF08140F),
+            onSecondary: Color(0xFF08140F),
             error: AppConstants.errorColor,
           ),
           scaffoldBackgroundColor: AppConstants.backgroundColor,
-          textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+          textTheme: GoogleFonts.plusJakartaSansTextTheme(
+            ThemeData.dark().textTheme,
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: AppConstants.surfaceCard,
+            foregroundColor: AppConstants.textPrimary,
+            centerTitle: false,
+            elevation: 0,
+          ),
           textSelectionTheme: const TextSelectionThemeData(
             cursorColor: AppConstants.secondaryColor,
-            selectionColor: Color(0x55CAA64D),
+            selectionColor: Color(0x4D7FD6AF),
             selectionHandleColor: AppConstants.secondaryColor,
           ),
           inputDecorationTheme: InputDecorationTheme(
@@ -99,13 +109,19 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppConstants.primaryColor,
-              foregroundColor: AppConstants.textPrimary,
+              foregroundColor: const Color(0xFF08140F),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(
                   AppConstants.borderRadiusMd,
                 ),
               ),
             ),
+          ),
+          bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: AppConstants.secondaryColor,
+            unselectedItemColor: AppConstants.textSecondary,
+            backgroundColor: AppConstants.surfaceCard,
           ),
           cardTheme: CardThemeData(
             color: AppConstants.surfaceCard,
@@ -140,15 +156,15 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.asset(
-                          'assets/app_logo2.png',
-                          width: 34,
-                          height: 34,
-                          fit: BoxFit.cover,
+                          'assets/Final_profile_logo.png',
+                          width: 38,
+                          height: 38,
+                          fit: BoxFit.contain,
                         ),
                       ),
                       const SizedBox(width: 10),
                       const Text(
-                        'PeerConnect',
+                        AppConstants.appName,
                         style: TextStyle(
                           color: AppConstants.textPrimary,
                           fontSize: 20,
@@ -188,9 +204,6 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
                     ),
                   ],
                   currentIndex: _selectedIndex,
-                  selectedItemColor: AppConstants.secondaryColor,
-                  unselectedItemColor: AppConstants.textSecondary,
-                  backgroundColor: AppConstants.surfaceCard,
                   onTap: _onItemTapped,
                 ),
               );
@@ -231,13 +244,13 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(22),
-                    child: Image.asset('assets/app logo.jpg', fit: BoxFit.cover),
+                    child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
                   ),
                 ),
                 const SizedBox(height: 16),
                 // App Name
                 const Text(
-                  'PeerConnect',
+                  AppConstants.appName,
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
@@ -247,7 +260,7 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Connecting Peers Worldwide',
+                  'Trusted guardian connections',
                   style: TextStyle(
                     fontSize: 12,
                     color: AppConstants.textSecondary,
@@ -355,7 +368,7 @@ class _PeerConnectAppState extends State<PeerConnectApp> {
           Padding(
             padding: const EdgeInsets.only(bottom: 24),
             child: Text(
-              'PeerConnect v1.0.0',
+              '${AppConstants.appName} v1.0.0',
               style: TextStyle(fontSize: 12, color: AppConstants.textMuted.withValues(alpha: 0.6)),
             ),
           ),

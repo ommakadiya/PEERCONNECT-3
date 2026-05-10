@@ -1,121 +1,75 @@
 import 'package:flutter/foundation.dart';
+import 'package:peerconnect/models/user_model.dart';
+import 'package:peerconnect/services/firestore_service.dart';
 
-/// Represents the user's chosen role.
-enum UserRole { child, parent, none }
+export 'package:peerconnect/models/user_model.dart' show UserRole;
 
-/// Model for child/student profile details.
-class ChildProfile {
-  final String name;
-  final String email;
-  final String originCity;
-  final String migratedCity;
-  final String migratedCountry;
-  final String phone;
-  final String address;
-  final String occupation;
-  final String parentName;
-  final String parentEmail;
-
-  const ChildProfile({
-    required this.name,
-    required this.email,
-    required this.originCity,
-    required this.migratedCity,
-    required this.migratedCountry,
-    required this.phone,
-    required this.address,
-    required this.occupation,
-    required this.parentName,
-    required this.parentEmail,
-  });
-}
-
-/// Model for a single parent entry.
-class ParentEntry {
-  final String name;
-  final String email;
-  final String originCity;
-  final String phone;
-  final String address;
-  final String occupation;
-  final String childEmail;
-
-  const ParentEntry({
-    required this.name,
-    required this.email,
-    required this.originCity,
-    required this.phone,
-    required this.address,
-    required this.occupation,
-    required this.childEmail,
-  });
-}
-
-/// Provider that stores the user's role and profile details.
-///
-/// Data is kept in memory for this session. Wire to Firestore as needed.
 class ProfileProvider extends ChangeNotifier {
-  UserRole _role = UserRole.none;
-  ChildProfile? _childProfile;
-  List<ParentEntry> _parentEntries = [];
+  final FirestoreService _firestoreService;
+
   String? _localPhotoPath;
+  bool _isSaving = false;
+  String? _saveError;
+  final Set<String> _connectedIds = {};
 
-  final Set<String> _connectedIds = {'p2', 'p3'};
+  UserModel? _user;
 
-  // ── Getters ──────────────────────────────────────────────────────────
-  UserRole get role => _role;
-  ChildProfile? get childProfile => _childProfile;
-  List<ParentEntry> get parentEntries => _parentEntries;
+  ProfileProvider({FirestoreService? firestoreService})
+      : _firestoreService = firestoreService ?? FirestoreService();
+
   Set<String> get connectedIds => _connectedIds;
   String? get localPhotoPath => _localPhotoPath;
+  bool get isSaving => _isSaving;
+  String? get saveError => _saveError;
 
-  bool get hasProfile =>
-      _role != UserRole.none &&
-      (_childProfile != null || _parentEntries.isNotEmpty);
+  void setUser(UserModel user) {
+    _user = user;
+    _connectedIds.clear();
+    _connectedIds.addAll(user.connectionIds);
+    notifyListeners();
+  }
 
-  /// Display name for the profile header.
   String get displayName {
-    if (_role == UserRole.child) return _childProfile?.name ?? '';
-    if (_role == UserRole.parent && _parentEntries.isNotEmpty) {
-      return _parentEntries.first.name;
+    if (_user != null) {
+      if (_user!.firstName.isNotEmpty) {
+        return '${_user!.firstName} ${_user!.lastName}'.trim();
+      }
+      return _user!.name;
     }
     return '';
   }
 
-  /// Display email for the profile header.
   String get displayEmail {
-    if (_role == UserRole.child) return _childProfile?.email ?? '';
-    if (_role == UserRole.parent && _parentEntries.isNotEmpty) {
-      return _parentEntries.first.email;
+    if (_user != null) {
+      if (_user!.email.isNotEmpty) {
+        return _user!.email;
+      }
     }
     return '';
   }
 
-  // ── Mutations ─────────────────────────────────────────────────────────
-
-  void setRole(UserRole role) {
-    _role = role;
+  Future<void> saveProfile(UserModel userModel) async {
+    _isSaving = true;
+    _saveError = null;
     notifyListeners();
-  }
 
-  void saveChildProfile(ChildProfile profile) {
-    _role = UserRole.child;
-    _childProfile = profile;
-    notifyListeners();
-  }
-
-  void saveParentProfile(List<ParentEntry> entries) {
-    _role = UserRole.parent;
-    _parentEntries = entries;
-    notifyListeners();
+    try {
+      await _firestoreService.updateUser(userModel);
+      _user = userModel;
+    } catch (e) {
+      _saveError = e.toString().replaceFirst('Exception: ', '');
+      debugPrint('Firestore saveProfile error: $e');
+    } finally {
+      _isSaving = false;
+      notifyListeners();
+    }
   }
 
   void clearProfile() {
-    _role = UserRole.none;
-    _childProfile = null;
-    _parentEntries = [];
+    _user = null;
     _connectedIds.clear();
     _localPhotoPath = null;
+    _saveError = null;
     notifyListeners();
   }
 
@@ -131,6 +85,11 @@ class ProfileProvider extends ChangeNotifier {
 
   void removeConnection(String id) {
     _connectedIds.remove(id);
+    notifyListeners();
+  }
+
+  void clearSaveError() {
+    _saveError = null;
     notifyListeners();
   }
 }

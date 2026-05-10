@@ -50,7 +50,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                     ),
                     _buildPolicySection(
                       'Profile Visibility & Matching',
-                      'Your profile information, including your university, course, or location, may be visible to other users to facilitate connections. We use this data to suggest relevant matches within the PeerConnect community.',
+                      'Your profile information, including your university, course, or location, may be visible to other users to facilitate connections. We use this data to suggest relevant matches within the GuardianNet community.',
                       theme,
                     ),
                     _buildPolicySection(
@@ -148,7 +148,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: AppConstants.paddingLg),
                             backgroundColor: AppConstants.primaryColor,
-                            foregroundColor: Colors.white,
+                            foregroundColor: AppConstants.backgroundColor,
                             disabledBackgroundColor: AppConstants.surfaceCardLight,
                             disabledForegroundColor: AppConstants.textMuted,
                           ),

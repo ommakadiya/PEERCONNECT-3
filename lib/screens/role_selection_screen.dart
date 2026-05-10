@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:peerconnect/providers/auth_provider.dart';
+import 'package:peerconnect/providers/profile_provider.dart';
 import 'package:peerconnect/utils/constants.dart';
-import 'package:peerconnect/screens/child_profile_setup_screen.dart';
-import 'package:peerconnect/screens/parent_profile_setup_screen.dart';
+import 'package:provider/provider.dart';
+
 
 /// Screen shown after sign-in asking the user "Who are you?"
 class RoleSelectionScreen extends StatelessWidget {
@@ -9,6 +11,20 @@ class RoleSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProv = context.read<AuthProvider>();
+    final profProv = context.read<ProfileProvider>();
+
+    Future<void> _selectRole(UserRole role) async {
+      if (authProv.user != null) {
+        final updatedUser = authProv.user!.copyWith(role: role);
+        await profProv.saveProfile(updatedUser);
+        authProv.updateLocalUser(updatedUser);
+        if (context.mounted) {
+          Navigator.of(context).pushReplacementNamed('/main');
+        }
+      }
+    }
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -23,21 +39,22 @@ class RoleSelectionScreen extends StatelessWidget {
 
                 // ── Logo ────────────────────────────────────────────
                 Container(
-                  width: 90,
-                  height: 90,
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(22),
+                    shape: BoxShape.circle,
+                    color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: AppConstants.primaryColor.withValues(alpha: 0.4),
+                        color: AppConstants.primaryColor.withValues(alpha: 0.3),
                         blurRadius: 28,
                         spreadRadius: 4,
                       ),
                     ],
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(22),
-                    child: Image.asset('assets/app_logo2.png', fit: BoxFit.cover),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Image.asset('assets/app bar logo.png', fit: BoxFit.contain),
                   ),
                 ),
 
@@ -69,11 +86,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   icon: Icons.school_rounded,
                   title: "I'm a Student",
                   subtitle: 'Set up your profile and connect with your parents',
-                  onTap: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (_) => const ChildProfileSetupScreen(),
-                    ),
-                  ),
+                  onTap: () => _selectRole(UserRole.child),
                 ),
 
                 const SizedBox(height: 16),
@@ -83,11 +96,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   icon: Icons.family_restroom_rounded,
                   title: "I'm a Parent",
                   subtitle: 'Set up your profile and link to your child',
-                  onTap: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (_) => const ParentProfileSetupScreen(),
-                    ),
-                  ),
+                  onTap: () => _selectRole(UserRole.parent),
                 ),
 
                 const Spacer(flex: 3),

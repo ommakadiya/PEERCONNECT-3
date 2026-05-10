@@ -7,31 +7,25 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1071073494722:android:ba9a05ef037c718c8e1d5b",
-        "android_client_info": {
-          "package_name": "com.peerconnect.peerconnect"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCmc4yl0VW-8YwUcp6FxdEW6KXSBqoT8Ac"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:1071073494722:android:2762a5c0acf34e198e1d5b",
         "android_client_info": {
           "package_name": "com.peerconnect.peerconnect"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1071073494722-rc59211ruu7f6it64fivqao26s8750hm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.peerconnect.peerconnect",
+            "certificate_hash": "79f12200e281f15bbac642a4a92bd8f1d7fb21be"
+          }
+        },
+        {
+          "client_id": "1071073494722-vgdqe9ph1le91km07lot74b7p2vohr1q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCmc4yl0VW-8YwUcp6FxdEW6KXSBqoT8Ac"
@@ -39,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1071073494722-vgdqe9ph1le91km07lot74b7p2vohr1q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

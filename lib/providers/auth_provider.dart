@@ -41,6 +41,7 @@ class AuthProvider extends ChangeNotifier {
   UserModel? get user => _user;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
+  FirestoreService get firestoreService => _firestoreService;
 
   // ── Public Methods ───────────────────────────────────────────────────
 
@@ -92,8 +93,8 @@ class AuthProvider extends ChangeNotifier {
 
     _user = UserModel(
       uid: 'guest_user',
-      name: 'PeerConnect User',
-      email: 'guest@peerconnect.app',
+      name: 'GuardianNet User',
+      email: 'guest@guardiannet.app',
       photoUrl: '',
       createdAt: DateTime.now(),
     );
@@ -121,6 +122,13 @@ class AuthProvider extends ChangeNotifier {
     if (_status == AuthStatus.error) {
       _status = AuthStatus.unauthenticated;
     }
+    notifyListeners();
+  }
+
+  /// Updates the local user model and notifies listeners.
+  /// Useful when profile data is updated via ProfileProvider.
+  void updateLocalUser(UserModel newUser) {
+    _user = newUser;
     notifyListeners();
   }
 

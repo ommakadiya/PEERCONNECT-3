@@ -20,7 +20,7 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Color(0xFF0A1F0F),
+    systemNavigationBarColor: Color(0xFF0F1B15),
     systemNavigationBarIconBrightness: Brightness.light,
   ));
 
@@ -29,5 +29,5 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const PeerConnectApp());
+  runApp(const GuardianNetApp());
 }

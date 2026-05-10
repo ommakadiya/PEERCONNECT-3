@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import '../models/mock_data.dart';
-import '../utils/constants.dart';
+import 'package:peerconnect/models/user_model.dart';
+import 'package:peerconnect/utils/constants.dart';
 
-/// Standalone profile details screen (fallback for deep links).
-/// Primary profile view is the glassmorphism modal in profile_modal.dart.
 class ProfileDetailsScreen extends StatefulWidget {
-  final ConnectionUser user;
-  final bool initialIsConnected;
-  final ValueChanged<bool> onConnectionStatusChanged;
+  final UserModel user;
+  final bool isConnected;
+  final VoidCallback onConnectToggle;
 
   const ProfileDetailsScreen({
     super.key,
     required this.user,
-    this.initialIsConnected = false,
-    required this.onConnectionStatusChanged,
+    required this.isConnected,
+    required this.onConnectToggle,
   });
 
   @override
@@ -21,158 +19,137 @@ class ProfileDetailsScreen extends StatefulWidget {
 }
 
 class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
-  late bool isConnected;
-
-  @override
-  void initState() {
-    super.initState();
-    isConnected = widget.initialIsConnected;
+  String _maskEmail(String email) {
+    if (email.isEmpty) return 'N/A';
+    if (widget.isConnected) return email;
+    
+    final parts = email.split('@');
+    if (parts.length != 2) return '***';
+    final name = parts[0];
+    if (name.length <= 3) return '***@${parts[1]}';
+    return '${name.substring(0, 3)}****@${parts[1]}';
   }
 
-  void _toggleConnection() {
-    setState(() {
-      isConnected = !isConnected;
-    });
-    widget.onConnectionStatusChanged(isConnected);
+  String _maskPhone(String phone) {
+    if (phone.isEmpty) return 'N/A';
+    if (widget.isConnected) return phone;
+
+    if (phone.length <= 4) return '***';
+    if (phone.startsWith('+')) {
+      final code = phone.substring(0, 3);
+      final rest = phone.substring(3);
+      if (rest.length <= 4) return '$code ***';
+      return '$code ******${rest.substring(rest.length - 4)}';
+    }
+    return '******${phone.substring(phone.length - 4)}';
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final user = widget.user;
+    final theme = Theme.of(context);
+
+    String displayName = user.firstName.isNotEmpty
+        ? '${user.firstName} ${user.lastName}'.trim()
+        : user.name;
+    if (displayName.isEmpty) displayName = 'Unknown User';
 
     return Scaffold(
       backgroundColor: AppConstants.backgroundColor,
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Profile Details'),
         backgroundColor: AppConstants.surfaceCard,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 24),
         child: Column(
           children: [
-            // ══════════════════════════════════════
-            //  HERO SECTION
-            // ══════════════════════════════════════
             Container(
               width: double.infinity,
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: AppConstants.surfaceCard,
-                border: Border(
-                  bottom: BorderSide(
-                    color: AppConstants.primaryColor.withValues(alpha: 0.3),
-                    width: 0.5,
-                  ),
-                ),
+                border: Border(bottom: BorderSide(color: AppConstants.primaryColor.withValues(alpha: 0.3))),
               ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-                child: Column(
-                  children: [
-                    // Avatar
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: AppConstants.primaryColor,
-                      child: Text(
-                        user.name[0].toUpperCase(),
-                        style: const TextStyle(fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(height: AppConstants.paddingMd),
-
-                    // Name
-                    Text(
-                      user.name,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppConstants.textPrimary,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 4),
-
-                    // Location
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.location_on_rounded,
-                          size: 14,
-                          color: AppConstants.textMuted,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          user.originCity,
-                          style: theme.textTheme.bodySmall?.copyWith(color: AppConstants.textSecondary),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Connect button
-                    SizedBox(
-                      width: 160,
-                      height: 38,
-                      child: ElevatedButton.icon(
-                        onPressed: _toggleConnection,
-                        icon: AnimatedSwitcher(
-                          duration: AppConstants.animationFast,
-                          child: Icon(
-                            isConnected ? Icons.check_rounded : Icons.person_add_outlined,
-                            key: ValueKey(isConnected),
-                            size: 16,
-                          ),
-                        ),
-                        label: AnimatedSwitcher(
-                          duration: AppConstants.animationFast,
-                          child: Text(
-                            isConnected ? 'Connected' : '+ Connect',
-                            key: ValueKey(isConnected),
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isConnected ? AppConstants.successColor : AppConstants.primaryColor,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(AppConstants.borderRadiusSm),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: AppConstants.paddingSm),
-
-            // ══════════════════════════════════════
-            //  SECTION CARDS
-            // ══════════════════════════════════════
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppConstants.paddingMd),
               child: Column(
                 children: [
-                  // ── 1. Basic Info ──
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: AppConstants.primaryColor,
+                    backgroundImage: user.photoUrl.isNotEmpty ? NetworkImage(user.photoUrl) : null,
+                    child: user.photoUrl.isEmpty ? Text(
+                      displayName[0].toUpperCase(),
+                      style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                    ) : null,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    displayName,
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600, color: AppConstants.textPrimary),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.location_on_rounded, size: 14, color: AppConstants.textMuted),
+                      const SizedBox(width: 4),
+                      Text(
+                        user.originCity.isNotEmpty ? user.originCity : 'Unknown Location',
+                        style: theme.textTheme.bodySmall?.copyWith(color: AppConstants.textSecondary),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: widget.onConnectToggle,
+                    icon: Icon(widget.isConnected ? Icons.check_rounded : Icons.person_add_outlined, size: 16),
+                    label: Text(widget.isConnected ? 'Connected' : '+ Connect', style: const TextStyle(fontWeight: FontWeight.w600)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: widget.isConnected ? AppConstants.successColor : AppConstants.primaryColor,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
                   _SectionCard(
-                    title: 'BASIC INFO',
+                    title: 'STUDENT DETAILS',
                     theme: theme,
                     child: Column(
                       children: [
-                        _InfoRow(label: 'Role', value: user.role, theme: theme),
-                        _divider(),
-                        _InfoRow(label: 'Company/School', value: user.company, theme: theme),
-                        _divider(),
-                        _InfoRow(label: 'City', value: user.originCity, theme: theme),
-                        _divider(),
-                        _InfoRow(label: 'Connections', value: user.connections.length.toString(), theme: theme),
+                        _InfoRow(label: 'Email ID', value: _maskEmail(user.email), theme: theme),
+                        _InfoRow(label: 'Phone Number', value: _maskPhone(user.phoneNumber), theme: theme),
+                        _InfoRow(label: 'Education Course', value: user.educationCourse, theme: theme),
+                        _InfoRow(label: 'Specialization', value: user.specialization, theme: theme),
+                        _InfoRow(label: 'College Name', value: user.collegeName, theme: theme),
+                        _InfoRow(label: 'Job Type', value: user.jobType, theme: theme),
+                        _InfoRow(label: 'Job Company', value: user.jobCompany, theme: theme),
+                        _InfoRow(label: 'Origin City', value: user.originCity, theme: theme),
+                        _InfoRow(label: 'Migrated City', value: user.migratedCity, theme: theme),
+                        _InfoRow(label: 'Migrated Country', value: user.migratedCountry, theme: theme),
                       ],
                     ),
                   ),
-                  const SizedBox(height: AppConstants.paddingSm),
+                  const SizedBox(height: 16),
+                  _SectionCard(
+                    title: 'PARENT DETAILS',
+                    theme: theme,
+                    child: Column(
+                      children: [
+                        _InfoRow(label: 'Parent Name', value: '${user.parentDetails.firstName} ${user.parentDetails.lastName}'.trim(), theme: theme),
+                        _InfoRow(label: 'Parent Email ID', value: _maskEmail(user.parentDetails.emailId), theme: theme),
+                        _InfoRow(label: 'Parent Phone Number', value: _maskPhone(user.parentDetails.phoneNumber), theme: theme),
+                        _InfoRow(label: 'Parent Occupation', value: user.parentDetails.occupation, theme: theme),
+                        _InfoRow(label: 'Parent Origin City', value: user.parentDetails.originCity, theme: theme),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -181,64 +158,30 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
       ),
     );
   }
-
-  // ── Thin divider ──
-  Widget _divider() {
-    return Divider(
-      height: 1,
-      thickness: 0.5,
-      color: AppConstants.primaryColor.withValues(alpha: 0.2),
-    );
-  }
 }
 
-// ══════════════════════════════════════════════════
-//  REUSABLE SECTION CARD (compact)
-// ══════════════════════════════════════════════════
 class _SectionCard extends StatelessWidget {
   final String title;
   final ThemeData theme;
   final Widget child;
 
-  const _SectionCard({
-    required this.title,
-    required this.theme,
-    required this.child,
-  });
+  const _SectionCard({required this.title, required this.theme, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      margin: const EdgeInsets.only(bottom: 2),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppConstants.surfaceCard,
-        borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
-        border: Border.all(
-          color: AppConstants.primaryColor.withValues(alpha: 0.2),
-          width: 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          )
-        ],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: theme.textTheme.labelSmall?.copyWith(
-              letterSpacing: 1.5,
-              fontWeight: FontWeight.w600,
-              color: AppConstants.textMuted,
-            ),
-          ),
-          const SizedBox(height: 8),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, color: AppConstants.secondaryColor)),
+          const SizedBox(height: 12),
           child,
         ],
       ),
@@ -246,40 +189,23 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════════
-//  INFO ROW — label : value
-// ══════════════════════════════════════════════════
 class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
   final ThemeData theme;
 
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    required this.theme,
-  });
+  const _InfoRow({required this.label, required this.value, required this.theme});
 
   @override
   Widget build(BuildContext context) {
+    final displayValue = value.isEmpty ? 'N/A' : value;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: AppConstants.textMuted,
-            ),
-          ),
-          Text(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: AppConstants.textPrimary,
-            ),
-          ),
+          Expanded(flex: 2, child: Text(label, style: const TextStyle(color: AppConstants.textMuted))),
+          Expanded(flex: 3, child: Text(displayValue, style: const TextStyle(color: AppConstants.textPrimary, fontWeight: FontWeight.w500), textAlign: TextAlign.right)),
         ],
       ),
     );

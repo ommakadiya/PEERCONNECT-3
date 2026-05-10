@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:peerconnect/models/user_model.dart';
 import 'package:peerconnect/providers/auth_provider.dart';
+import 'package:peerconnect/providers/profile_provider.dart';
 import 'package:peerconnect/utils/constants.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -51,8 +53,13 @@ class _LoginScreenState extends State<LoginScreen>
         child: Consumer<AuthProvider>(
           builder: (ctx, auth, _) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (auth.isAuthenticated) {
-                Navigator.of(context).pushReplacementNamed('/privacy');
+              if (auth.isAuthenticated && auth.user != null) {
+                Provider.of<ProfileProvider>(context, listen: false).setUser(auth.user!);
+                if (auth.user!.role != UserRole.none) {
+                  Navigator.of(context).pushReplacementNamed('/main');
+                } else {
+                  Navigator.of(context).pushReplacementNamed('/privacy');
+                }
               }
             });
             return SafeArea(
@@ -85,13 +92,13 @@ class _LoginScreenState extends State<LoginScreen>
                           ),
                         ),
                         const Spacer(flex: 2),
-                        _feat(Icons.group_rounded, 'Peer Networking'),
+                        _feat(Icons.verified_user_rounded, 'Trusted Guardian Profiles'),
                         const SizedBox(height: 14),
-                        _feat(Icons.flash_on_rounded, 'Oppurunity and Helping'),
+                        _feat(Icons.handshake_rounded, 'Secure Support Connections'),
                         const SizedBox(height: 14),
                         _feat(
-                          Icons.chat_bubble_outline,
-                          'Seamless Connections',
+                          Icons.safety_check_rounded,
+                          'Simple and Private Experience',
                         ),
                         const Spacer(flex: 2),
                         if (auth.errorMessage != null) ...[
@@ -101,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen>
                         _googleBtn(auth),
                         const SizedBox(height: 20),
                         Text(
-                          'By signing in, you agree to our Terms of Service',
+                          'By continuing, you agree to our Terms and Privacy Policy.',
                           style: TextStyle(
                             fontSize: 12,
                             color: AppConstants.textMuted.withValues(
@@ -124,21 +131,25 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _logo() => Container(
-    width: 110,
-    height: 110,
+    width: 120,
+    height: 120,
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(28),
+      shape: BoxShape.circle,
       boxShadow: [
         BoxShadow(
-          color: AppConstants.primaryColor.withValues(alpha: 0.45),
-          blurRadius: 32,
-          spreadRadius: 6,
+          color: AppConstants.primaryColor.withValues(alpha: 0.3),
+          blurRadius: 30,
+          spreadRadius: 4,
         ),
       ],
     ),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-      child: Image.asset('assets/app_logo2.png', fit: BoxFit.cover),
+    child: CircleAvatar(
+      backgroundColor: Colors.white,
+      radius: 60,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
+      ),
     ),
   );
 
@@ -210,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen>
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: loading ? null : () => a.signInAsGuest(),
+        onPressed: loading ? null : () => a.signInWithGoogle(),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppConstants.surfaceCard,
           foregroundColor: AppConstants.textPrimary,
@@ -262,7 +273,7 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                   const SizedBox(width: 14),
                   const Text(
-                    'Continue with Google',
+                    'Sign in with Google',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

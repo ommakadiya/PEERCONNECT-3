@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:peerconnect/providers/auth_provider.dart';
+import 'package:peerconnect/providers/profile_provider.dart';
+import 'package:peerconnect/utils/constants.dart';
 
 /// Splash screen displayed on app launch.
 ///
@@ -50,11 +52,22 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward().then((_) => _navigateFromSplash());
   }
 
-  void _navigateFromSplash() {
+  void _navigateFromSplash() async {
     if (!mounted) return;
     final authProvider = context.read<AuthProvider>();
+    
+    // Wait for auth to initialize (max 5 seconds)
+    int count = 0;
+    while (authProvider.status == AuthStatus.uninitialized && count < 10) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      count++;
+    }
+
     if (authProvider.isAuthenticated) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      if (authProvider.user != null) {
+        context.read<ProfileProvider>().setUser(authProvider.user!);
+      }
+      Navigator.of(context).pushReplacementNamed('/main');
     } else {
       Navigator.of(context).pushReplacementNamed('/login');
     }
@@ -69,15 +82,11 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppConstants.backgroundColor,
       body: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
-          // Combine fade-in and fade-out: multiply their values
-          // fadeIn goes 0→1 in first 20%, stays 1 in middle
-          // fadeOut goes 1→0 in last 20%
           final opacity = _fadeIn.value * _fadeOut.value;
-
           return Opacity(
             opacity: opacity,
             child: child,
@@ -85,8 +94,8 @@ class _SplashScreenState extends State<SplashScreen>
         },
         child: SizedBox.expand(
           child: Image.asset(
-            'assets/logo_appearing_while_opening.png',
-            fit: BoxFit.contain,
+            'assets/new.jpeg',
+            fit: BoxFit.cover,
           ),
         ),
       ),

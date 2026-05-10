@@ -33,7 +33,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Password changed successfully!', style: TextStyle(color: Colors.white)),
+          content: Text('Password changed successfully!', style: TextStyle(color: AppConstants.textPrimary)),
           backgroundColor: AppConstants.successColor,
         ),
       );

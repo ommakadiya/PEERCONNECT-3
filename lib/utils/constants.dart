@@ -5,34 +5,43 @@ class AppConstants {
   AppConstants._();
 
   // ── App Info ──────────────────────────────────────────────────────────
-  static const String appName = 'PeerConnect';
-  static const String appTagline = 'Connect. Collaborate. Grow.';
-  static const String googleSignInWebClientId = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
+  static const String appName = 'GuardianNet';
+  static const String appTagline = 'Safe, Simple, and Connected.';
+
+  /// ⚠️ REQUIRED: Replace this with the Web Client ID from your Firebase project.
+  /// How to get it:
+  ///   1. Go to Firebase Console → peerconnect-16e19
+  ///   2. Authentication → Sign-in method → Google → (expand)
+  ///   3. Copy the "Web client ID" shown under "Web SDK configuration"
+  static const String googleSignInWebClientId =
+      '1071073494722-vgdqe9ph1le91km07lot74b7p2vohr1q.apps.googleusercontent.com';
 
   // ── Colors ────────────────────────────────────────────────────────────
-  static const Color backgroundColor = Color(0xFF1B4332);
-  static const Color primaryColor = Color(0xFF355E3B);
-  static const Color secondaryColor = Color(0xFFCAA64D);
-  static const Color accentColor = Color(0xFFCAA64D);
-  static const Color highlightColor = Color(0xFFE5C36E);
-  static const Color surfaceDark = Color(0xFF143024);
-  static const Color surfaceCard = Color(0xFF244A37);
-  static const Color surfaceCardLight = Color(0xFF355E3B);
-  static const Color textPrimary = Color(0xFFFDF6E3);
-  static const Color textSecondary = Color(0xFFD4CCB6);
-  static const Color textMuted = Color(0xFFA6A495);
+  static const Color backgroundColor = Color(0xFF1A1A1A); // Pure Black Background
+  static const Color primaryColor = Color(0xFFD4AF37);    // Gold
+  static const Color secondaryColor = Color(0xFFF3E8C9);  // Cream
+  static const Color accentColor = Color(0xFFD4AF37);
+  static const Color highlightColor = Color(0xFFF3E8C9);
+  static const Color surfaceDark = Color(0xFF121212);
+  static const Color surfaceCard = Color(0xFF252525);     // Dark Grey Card
+  static const Color surfaceCardLight = Color(0xFF2D2D2D);
+  static const Color textPrimary = Color(0xFFF3E8C9);     // Cream Text
+  static const Color textSecondary = Color(0xFFE0D5B7);   // Muted Cream
+  static const Color textMuted = Color(0xFF7D7D7D);
   static const Color errorColor = Color(0xFFFF4757);
-  static const Color successColor = Color(0xFF2ED573);
+  static const Color successColor = Color(0xFFD4AF37);    // Gold for success too
+  static const Color goldColor = Color(0xFFD4AF37);
+  static const Color creamColor = Color(0xFFF3E8C9);
 
   // ── Gradients ─────────────────────────────────────────────────────────
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [primaryColor, secondaryColor],
+    colors: [Color(0xFFD4AF37), Color(0xFFB8962D)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [backgroundColor, surfaceDark, backgroundColor],
+    colors: [backgroundColor, Color(0xFF121212), backgroundColor],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
