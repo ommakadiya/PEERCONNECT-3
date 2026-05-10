@@ -196,7 +196,7 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: AppConstants.surfaceDark),
+          const Divider(height: 1, color: AppConstants.lightSand),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(children: children),

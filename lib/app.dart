@@ -251,7 +251,7 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 60, 24, 28),
             decoration: const BoxDecoration(
-              gradient: AppConstants.backgroundGradient,
+              gradient: AppConstants.navyGradient,
             ),
             child: Column(
               children: [
@@ -369,7 +369,7 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
                   Navigator.pop(context);
                   _onItemTapped(3);
                 }),
-                const Divider(color: AppConstants.surfaceDark, indent: 16, endIndent: 16),
+                const Divider(color: AppConstants.lightSand, indent: 16, endIndent: 16),
                 _drawerItem(Icons.privacy_tip_outlined, 'Privacy Policy', () {
                   Navigator.pop(context);
                   Navigator.pushNamed(context, '/privacy');

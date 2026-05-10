@@ -104,9 +104,9 @@ class AdDetailsScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         _buildInfoRow(Icons.public, 'Target Country', ad.targetCountry),
-                        const Divider(color: AppConstants.surfaceDark, height: 24),
+                        const Divider(color: AppConstants.lightSand, height: 24),
                         _buildInfoRow(Icons.calendar_today, 'Valid Until', dateStr),
-                        const Divider(color: AppConstants.surfaceDark, height: 24),
+                        const Divider(color: AppConstants.lightSand, height: 24),
                         _buildInfoRow(Icons.thumb_up_alt_outlined, 'Likes', '${ad.likes.length} people like this'),
                       ],
                     ),

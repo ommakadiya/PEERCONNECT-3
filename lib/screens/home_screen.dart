@@ -108,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen>
           width: double.infinity,
           height: double.infinity,
           decoration: const BoxDecoration(
-            gradient: AppConstants.backgroundGradient,
+            color: AppConstants.backgroundColor,
           ),
           child: SafeArea(
             child: Center(

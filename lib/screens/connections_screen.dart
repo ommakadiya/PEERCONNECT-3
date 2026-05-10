@@ -168,7 +168,7 @@ class _ConnectionsScreenState extends State<ConnectionsScreen>
     final myConnections = _getMyConnections(connectedIds, currentUserId);
 
     return Container(
-      decoration: const BoxDecoration(gradient: AppConstants.backgroundGradient),
+      decoration: const BoxDecoration(color: AppConstants.backgroundColor),
       child: SafeArea(
         child: Center(
           child: ConstrainedBox(
