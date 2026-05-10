@@ -156,22 +156,21 @@ class _HomeScreenState extends State<HomeScreen>
             children: [
               Text(
                 'Welcome back,',
-                style: TextStyle(fontSize: 12, color: AppConstants.textSecondary.withValues(alpha: 0.8)),
+                style: TextStyle(fontSize: 12, color: AppConstants.warmBeige.withValues(alpha: 0.7)),
               ),
               Text(
                 displayName.split(' ').first,
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppConstants.warmBeige,
                 ),
               ),
             ],
           ),
         ),
-        const Spacer(),
         _iconBtn(Icons.notifications_none_rounded, () {}),
-        const SizedBox(width: 8),
+        const SizedBox(width: 12),
         _iconBtn(Icons.logout_rounded, () => _confirmLogOut(ctx, auth)),
       ],
     );
@@ -183,40 +182,48 @@ class _HomeScreenState extends State<HomeScreen>
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: AppConstants.surfaceCard,
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppConstants.primaryColor.withValues(alpha: 0.15),
-        ),
       ),
-      child: Icon(ic, color: AppConstants.textSecondary, size: 22),
+      child: Icon(ic, color: AppConstants.warmBeige, size: 22),
     ),
   );
 
   Widget _toggleButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ElevatedButton(
-          onPressed: () => setState(() => _showConnections = true),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: _showConnections ? AppConstants.primaryColor : AppConstants.surfaceCard,
-            foregroundColor: _showConnections ? AppConstants.textPrimary : AppConstants.textSecondary,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          child: const Text('Connections'),
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppConstants.lightSand.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _toggleItem('Connections', _showConnections, () => setState(() => _showConnections = true)),
+          _toggleItem('Groups', !_showConnections, () => setState(() => _showConnections = false)),
+        ],
+      ),
+    );
+  }
+
+  Widget _toggleItem(String label, bool active, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: active ? AppConstants.forestGreen : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
         ),
-        const SizedBox(width: 12),
-        ElevatedButton(
-          onPressed: () => setState(() => _showConnections = false),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: !_showConnections ? AppConstants.primaryColor : AppConstants.surfaceCard,
-            foregroundColor: !_showConnections ? AppConstants.textPrimary : AppConstants.textSecondary,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: active ? Colors.white : AppConstants.charcoal,
+            fontWeight: active ? FontWeight.bold : FontWeight.normal,
           ),
-          child: const Text('Groups'),
         ),
-      ],
+      ),
     );
   }
 

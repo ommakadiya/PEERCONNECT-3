@@ -77,17 +77,10 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildPremiumHeader(BuildContext context, UserModel user) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppConstants.primaryColor.withValues(alpha: 0.15),
-            AppConstants.backgroundColor,
-          ],
-        ),
+      decoration: const BoxDecoration(
+        gradient: AppConstants.primaryGradient,
       ),
-      padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
+      padding: const EdgeInsets.fromLTRB(24, 60, 24, 40),
       child: Column(
         children: [
           Stack(
@@ -98,16 +91,16 @@ class ProfileScreen extends StatelessWidget {
                 height: 130,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.3), width: 2),
+                  border: Border.all(color: AppConstants.premiumGold.withValues(alpha: 0.5), width: 3),
                 ),
               ),
               CircleAvatar(
                 radius: 60,
-                backgroundColor: AppConstants.surfaceCardLight,
+                backgroundColor: AppConstants.warmBeige,
                 backgroundImage: user.photoUrl.isNotEmpty ? NetworkImage(user.photoUrl) : null,
                 child: user.photoUrl.isEmpty 
                   ? Text(user.firstName.isNotEmpty ? user.firstName[0].toUpperCase() : '?', 
-                      style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppConstants.primaryColor))
+                      style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppConstants.forestGreen))
                   : null,
               ),
             ],
@@ -115,16 +108,16 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 20),
           Text(
             '${user.firstName} ${user.lastName}',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppConstants.textPrimary),
+            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppConstants.warmBeige),
           ),
           const SizedBox(height: 8),
           Text(
             user.educationCourse.isNotEmpty ? user.educationCourse : 'Update your course',
-            style: const TextStyle(fontSize: 14, color: AppConstants.primaryColor, fontWeight: FontWeight.w500),
+            style: const TextStyle(fontSize: 15, color: AppConstants.premiumGold, fontWeight: FontWeight.bold),
           ),
           Text(
             '${user.migratedCity}, ${user.migratedCountry}',
-            style: const TextStyle(fontSize: 13, color: AppConstants.textSecondary),
+            style: TextStyle(fontSize: 14, color: AppConstants.warmBeige.withValues(alpha: 0.8)),
           ),
         ],
       ),

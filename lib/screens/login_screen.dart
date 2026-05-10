@@ -47,9 +47,7 @@ class _LoginScreenState extends State<LoginScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppConstants.backgroundGradient,
-        ),
+        color: AppConstants.warmBeige,
         child: Consumer<AuthProvider>(
           builder: (ctx, auth, _) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -64,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen>
             });
             return SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: SlideTransition(
                   position: _slide,
                   child: FadeTransition(
@@ -73,47 +71,46 @@ class _LoginScreenState extends State<LoginScreen>
                       children: [
                         const Spacer(flex: 2),
                         _logo(),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
                         const Text(
                           AppConstants.appName,
                           style: TextStyle(
                             fontSize: 34,
-                            fontWeight: FontWeight.w700,
-                            color: AppConstants.textPrimary,
-                            letterSpacing: 1.2,
+                            fontWeight: FontWeight.w800,
+                            color: AppConstants.charcoal,
+                            letterSpacing: 1.1,
                           ),
                         ),
                         const SizedBox(height: 8),
                         const Text(
                           AppConstants.appTagline,
                           style: TextStyle(
-                            fontSize: 15,
-                            color: AppConstants.textSecondary,
+                            fontSize: 16,
+                            color: AppConstants.mutedOlive,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         const Spacer(flex: 2),
                         _feat(Icons.verified_user_rounded, 'Trusted Guardian Profiles'),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 16),
                         _feat(Icons.handshake_rounded, 'Secure Support Connections'),
-                        const SizedBox(height: 14),
+                        const SizedBox(height: 16),
                         _feat(
                           Icons.safety_check_rounded,
-                          'Simple and Private Experience',
+                          'Professional & Secure Experience',
                         ),
-                        const Spacer(flex: 2),
+                        const Spacer(flex: 3),
                         if (auth.errorMessage != null) ...[
                           _errorBanner(auth),
                           const SizedBox(height: 16),
                         ],
                         _googleBtn(auth),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
                         Text(
                           'By continuing, you agree to our Terms and Privacy Policy.',
                           style: TextStyle(
                             fontSize: 12,
-                            color: AppConstants.textMuted.withValues(
-                              alpha: 0.7,
-                            ),
+                            color: AppConstants.textMuted,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -131,49 +128,46 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _logo() => Container(
-    width: 120,
-    height: 120,
+    width: 130,
+    height: 130,
     decoration: BoxDecoration(
       shape: BoxShape.circle,
+      color: Colors.white,
       boxShadow: [
         BoxShadow(
-          color: AppConstants.primaryColor.withValues(alpha: 0.3),
+          color: AppConstants.premiumGold.withValues(alpha: 0.2),
           blurRadius: 30,
-          spreadRadius: 4,
+          spreadRadius: 2,
         ),
       ],
     ),
-    child: CircleAvatar(
-      backgroundColor: Colors.white,
-      radius: 60,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
-      ),
+    child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
     ),
   );
 
   Widget _feat(IconData ic, String txt) => Row(
     children: [
       Container(
-        width: 40,
-        height: 40,
+        width: 44,
+        height: 44,
         decoration: BoxDecoration(
-          color: AppConstants.surfaceCard,
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: AppConstants.primaryColor.withValues(alpha: 0.2),
+            color: AppConstants.lightSand,
           ),
         ),
-        child: Icon(ic, color: AppConstants.accentColor, size: 20),
+        child: Icon(ic, color: AppConstants.forestGreen, size: 22),
       ),
-      const SizedBox(width: 14),
+      const SizedBox(width: 16),
       Text(
         txt,
         style: const TextStyle(
-          color: AppConstants.textSecondary,
+          color: AppConstants.charcoal,
           fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
         ),
       ),
     ],
@@ -182,9 +176,9 @@ class _LoginScreenState extends State<LoginScreen>
   Widget _errorBanner(AuthProvider a) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     decoration: BoxDecoration(
-      color: AppConstants.errorColor.withValues(alpha: 0.12),
+      color: AppConstants.errorColor.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: AppConstants.errorColor.withValues(alpha: 0.3)),
+      border: Border.all(color: AppConstants.errorColor.withValues(alpha: 0.2)),
     ),
     child: Row(
       children: [
@@ -219,18 +213,16 @@ class _LoginScreenState extends State<LoginScreen>
     final loading = a.status == AuthStatus.authenticating;
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: 60,
       child: ElevatedButton(
         onPressed: loading ? null : () => a.signInWithGoogle(),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppConstants.surfaceCard,
-          foregroundColor: AppConstants.textPrimary,
-          elevation: 0,
+          backgroundColor: AppConstants.forestGreen,
+          foregroundColor: Colors.white,
+          elevation: 4,
+          shadowColor: AppConstants.forestGreen.withValues(alpha: 0.3),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: AppConstants.primaryColor.withValues(alpha: 0.3),
-            ),
+            borderRadius: BorderRadius.circular(18),
           ),
         ),
         child: loading
@@ -239,45 +231,33 @@ class _LoginScreenState extends State<LoginScreen>
                 height: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation(AppConstants.primaryColor),
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
                 ),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 28,
-                    height: 28,
+                    width: 32,
+                    height: 32,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
-                      child: Text(
-                        'G',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          foreground: Paint()
-                            ..shader = const LinearGradient(
-                              colors: [
-                                Color(0xFF4285F4),
-                                Color(0xFF34A853),
-                                Color(0xFFFBBC05),
-                                Color(0xFFEA4335),
-                              ],
-                            ).createShader(const Rect.fromLTWH(0, 0, 20, 20)),
-                        ),
+                      child: Image.network(
+                        'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
+                        height: 18,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 16),
                   const Text(
                     'Sign in with Google',
                     style: TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.3,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ],

@@ -66,34 +66,35 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
-          brightness: Brightness.dark,
-          colorScheme: const ColorScheme.dark(
-            primary: AppConstants.primaryColor,
-            secondary: AppConstants.secondaryColor,
-            surface: AppConstants.surfaceCard,
-            onSurface: AppConstants.textPrimary,
-            onPrimary: Color(0xFF08140F),
-            onSecondary: Color(0xFF08140F),
+          brightness: Brightness.light,
+          colorScheme: const ColorScheme.light(
+            primary: AppConstants.forestGreen,
+            secondary: AppConstants.premiumGold,
+            surface: AppConstants.warmBeige,
+            onSurface: AppConstants.charcoal,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
             error: AppConstants.errorColor,
           ),
           scaffoldBackgroundColor: AppConstants.backgroundColor,
           textTheme: GoogleFonts.plusJakartaSansTextTheme(
-            ThemeData.dark().textTheme,
+            ThemeData.light().textTheme,
           ),
           appBarTheme: const AppBarTheme(
-            backgroundColor: AppConstants.surfaceCard,
-            foregroundColor: AppConstants.textPrimary,
+            backgroundColor: AppConstants.navyBlue,
+            foregroundColor: AppConstants.warmBeige,
             centerTitle: false,
             elevation: 0,
           ),
           textSelectionTheme: const TextSelectionThemeData(
-            cursorColor: AppConstants.secondaryColor,
-            selectionColor: Color(0x4D7FD6AF),
-            selectionHandleColor: AppConstants.secondaryColor,
+            cursorColor: AppConstants.premiumGold,
+            selectionColor: Color(0x4DD4A017),
+            selectionHandleColor: AppConstants.premiumGold,
           ),
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
-            fillColor: AppConstants.surfaceCardLight,
+            fillColor: AppConstants.softCream,
+            labelStyle: const TextStyle(color: AppConstants.mutedOlive),
             hintStyle: const TextStyle(color: AppConstants.textMuted),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
@@ -101,35 +102,57 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
-              borderSide: BorderSide.none,
+              borderSide: const BorderSide(color: AppConstants.lightSand),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
-              borderSide: const BorderSide(color: AppConstants.secondaryColor),
+              borderSide: const BorderSide(color: AppConstants.premiumGold, width: 1.5),
             ),
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppConstants.primaryColor,
-              foregroundColor: const Color(0xFF08140F),
+              foregroundColor: Colors.white,
+              elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  AppConstants.borderRadiusMd,
-                ),
+                borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
               ),
             ),
           ),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
             type: BottomNavigationBarType.fixed,
-            selectedItemColor: AppConstants.secondaryColor,
-            unselectedItemColor: AppConstants.textSecondary,
-            backgroundColor: AppConstants.surfaceCard,
+            selectedItemColor: AppConstants.premiumGold,
+            unselectedItemColor: AppConstants.lightSand,
+            backgroundColor: AppConstants.navyBlue,
           ),
           cardTheme: CardThemeData(
             color: AppConstants.surfaceCard,
+            elevation: 1,
+            shadowColor: Colors.black.withValues(alpha: 0.05),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
             ),
+          ),
+        ),
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.dark,
+          colorScheme: const ColorScheme.dark(
+            primary: AppConstants.forestGreen,
+            secondary: AppConstants.premiumGold,
+            surface: Color(0xFF1E293B),
+            onSurface: AppConstants.warmBeige,
+            onPrimary: Colors.white,
+            error: AppConstants.errorColor,
+          ),
+          scaffoldBackgroundColor: const Color(0xFF0F172A),
+          textTheme: GoogleFonts.plusJakartaSansTextTheme(
+            ThemeData.dark().textTheme,
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFF1E293B),
+            foregroundColor: AppConstants.warmBeige,
+            elevation: 0,
           ),
         ),
         initialRoute: '/',

@@ -82,20 +82,71 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppConstants.backgroundColor,
-      body: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          final opacity = _fadeIn.value * _fadeOut.value;
-          return Opacity(
-            opacity: opacity,
-            child: child,
-          );
-        },
-        child: SizedBox.expand(
-          child: Image.asset(
-            'assets/new.jpeg',
-            fit: BoxFit.cover,
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: AppConstants.navyGradient,
+        ),
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            final opacity = _fadeIn.value * _fadeOut.value;
+            return Opacity(
+              opacity: opacity,
+              child: child,
+            );
+          },
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 180,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppConstants.premiumGold.withValues(alpha: 0.15),
+                            blurRadius: 50,
+                            spreadRadius: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Image.asset(
+                      'assets/Final_profile_logo.png',
+                      width: 150,
+                      height: 150,
+                      fit: BoxFit.contain,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 40),
+                const Text(
+                  AppConstants.appName,
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: AppConstants.warmBeige,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  AppConstants.appTagline,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppConstants.lightSand,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

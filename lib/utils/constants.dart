@@ -17,31 +17,47 @@ class AppConstants {
       '1071073494722-vgdqe9ph1le91km07lot74b7p2vohr1q.apps.googleusercontent.com';
 
   // ── Colors ────────────────────────────────────────────────────────────
-  static const Color backgroundColor = Color(0xFF1A1A1A); // Pure Black Background
-  static const Color primaryColor = Color(0xFFD4AF37);    // Gold
-  static const Color secondaryColor = Color(0xFFF3E8C9);  // Cream
-  static const Color accentColor = Color(0xFFD4AF37);
-  static const Color highlightColor = Color(0xFFF3E8C9);
-  static const Color surfaceDark = Color(0xFF121212);
-  static const Color surfaceCard = Color(0xFF252525);     // Dark Grey Card
-  static const Color surfaceCardLight = Color(0xFF2D2D2D);
-  static const Color textPrimary = Color(0xFFF3E8C9);     // Cream Text
-  static const Color textSecondary = Color(0xFFE0D5B7);   // Muted Cream
-  static const Color textMuted = Color(0xFF7D7D7D);
-  static const Color errorColor = Color(0xFFFF4757);
-  static const Color successColor = Color(0xFFD4AF37);    // Gold for success too
-  static const Color goldColor = Color(0xFFD4AF37);
-  static const Color creamColor = Color(0xFFF3E8C9);
+  // Primary Palette
+  static const Color forestGreen = Color(0xFF1B4332);     // Deep Forest Green
+  static const Color premiumGold = Color(0xFFC89B3C);     // Premium Gold
+  static const Color warmBeige = Color(0xFFF5E9DA);       // Background Base
+  static const Color richBrown = Color(0xFF7A5C45);       // Earth Tone
+  static const Color navyBlue = Color(0xFF14213D);        // Professional Navy
+  
+  // Supporting Colors
+  static const Color softCream = Color(0xFFFAF6F0);       // Main BG
+  static const Color mutedOlive = Color(0xFF5F6F52);      // Icons/Inactive
+  static const Color charcoal = Color(0xFF2D2D2D);        // Primary Text
+  static const Color lightSand = Color(0xFFD8C3A5);       // Disabled/Borders
+  
+  // Role-based colors (Mapped from the new system)
+  static const Color backgroundColor = softCream;         // Light Mode Base
+  static const Color primaryColor = forestGreen;
+  static const Color secondaryColor = richBrown;
+  static const Color accentColor = premiumGold;
+  static const Color surfaceCard = warmBeige;
+  static const Color surfaceCardLight = Color(0xFFEFE2D0); // Slightly darker beige
+  static const Color textPrimary = charcoal;
+  static const Color textSecondary = mutedOlive;          // Muted Olive for secondary
+  static const Color textMuted = Color(0xFF9E9481);       // Sand tone for muted
+  static const Color errorColor = Color(0xFF962D2D);      // Muted red-brown for error
+  static const Color successColor = forestGreen;
 
   // ── Gradients ─────────────────────────────────────────────────────────
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFFD4AF37), Color(0xFFB8962D)],
+    colors: [forestGreen, Color(0xFF123524)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [backgroundColor, Color(0xFF121212), backgroundColor],
+  static const LinearGradient goldGradient = LinearGradient(
+    colors: [Color(0xFFD4A017), premiumGold],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient navyGradient = LinearGradient(
+    colors: [Color(0xFF1E2A38), navyBlue],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
