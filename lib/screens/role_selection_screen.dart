@@ -29,7 +29,7 @@ class RoleSelectionScreen extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: AppConstants.backgroundColor,
+        decoration: const BoxDecoration(gradient: AppConstants.backgroundGradient),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 28),
@@ -39,22 +39,22 @@ class RoleSelectionScreen extends StatelessWidget {
 
                 // ── Logo ────────────────────────────────────────────
                 Container(
-                  width: 110,
-                  height: 110,
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppConstants.surfaceCard,
+                    color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 30,
-                        spreadRadius: 2,
+                        color: AppConstants.primaryColor.withValues(alpha: 0.3),
+                        blurRadius: 28,
+                        spreadRadius: 4,
                       ),
                     ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
+                    padding: const EdgeInsets.all(12),
+                    child: Image.asset('assets/app bar logo.png', fit: BoxFit.contain),
                   ),
                 ),
 
@@ -64,19 +64,18 @@ class RoleSelectionScreen extends StatelessWidget {
                 const Text(
                   'Who are you?',
                   style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    color: AppConstants.charcoal,
-                    letterSpacing: -1,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                    color: AppConstants.textPrimary,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Select your role to personalize your experience',
+                  'Select your role to get started',
                   style: TextStyle(
-                    fontSize: 16,
-                    color: AppConstants.mutedOlive,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 15,
+                    color: AppConstants.textSecondary,
                   ),
                 ),
 
@@ -86,7 +85,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 _RoleCard(
                   icon: Icons.school_rounded,
                   title: "I'm a Student",
-                  subtitle: 'Set up your profile and join your trusted peer groups',
+                  subtitle: 'Set up your profile and connect with your parents',
                   onTap: () => _selectRole(UserRole.child),
                 ),
 
@@ -96,7 +95,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 _RoleCard(
                   icon: Icons.family_restroom_rounded,
                   title: "I'm a Parent",
-                  subtitle: 'Set up your profile and stay connected with your children',
+                  subtitle: 'Set up your profile and link to your child',
                   onTap: () => _selectRole(UserRole.parent),
                 ),
 
@@ -160,19 +159,19 @@ class _RoleCardState extends State<_RoleCard>
         },
         onTapCancel: () => _press.reverse(),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: BoxDecoration(
             color: AppConstants.surfaceCard,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: Colors.white10,
+              color: AppConstants.primaryColor.withValues(alpha: 0.35),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 15,
-                offset: const Offset(0, 6),
+                color: Colors.black.withValues(alpha: 0.18),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -180,16 +179,16 @@ class _RoleCardState extends State<_RoleCard>
             children: [
               // Icon badge
               Container(
-                width: 56,
-                height: 56,
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
-                  color: AppConstants.forestGreen.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppConstants.primaryColor.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
                   widget.icon,
-                  color: AppConstants.forestGreen,
-                  size: 28,
+                  color: AppConstants.accentColor,
+                  size: 26,
                 ),
               ),
               const SizedBox(width: 16),
@@ -201,9 +200,9 @@ class _RoleCardState extends State<_RoleCard>
                     Text(
                       widget.title,
                       style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: AppConstants.charcoal,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: AppConstants.accentColor,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -211,7 +210,7 @@ class _RoleCardState extends State<_RoleCard>
                       widget.subtitle,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: AppConstants.mutedOlive,
+                        color: AppConstants.textSecondary,
                         height: 1.4,
                       ),
                     ),
@@ -221,8 +220,8 @@ class _RoleCardState extends State<_RoleCard>
               const SizedBox(width: 8),
               const Icon(
                 Icons.chevron_right_rounded,
-                color: AppConstants.premiumGold,
-                size: 24,
+                color: AppConstants.accentColor,
+                size: 22,
               ),
             ],
           ),

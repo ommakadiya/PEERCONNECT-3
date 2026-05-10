@@ -18,7 +18,6 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   
-  // Controllers
   late TextEditingController _sFirstName;
   late TextEditingController _sMiddleName;
   late TextEditingController _sLastName;
@@ -72,25 +71,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   void dispose() {
-    _sFirstName.dispose();
-    _sMiddleName.dispose();
-    _sLastName.dispose();
-    _sEmail.dispose();
-    _sPhone.dispose();
-    _sOriginCity.dispose();
-    _sMigratedCity.dispose();
-    _sMigratedCountry.dispose();
-    _sEduCourse.dispose();
-    _sSpecialization.dispose();
-    _sCollege.dispose();
-    _sJobCompany.dispose();
-    _pFirstName.dispose();
-    _pLastName.dispose();
-    _pEmail.dispose();
-    _pPhone.dispose();
-    _pOriginCity.dispose();
-    _pOccupation.dispose();
-    _pAddress.dispose();
+    _sFirstName.dispose(); _sMiddleName.dispose(); _sLastName.dispose();
+    _sEmail.dispose(); _sPhone.dispose(); _sOriginCity.dispose();
+    _sMigratedCity.dispose(); _sMigratedCountry.dispose(); _sEduCourse.dispose();
+    _sSpecialization.dispose(); _sCollege.dispose(); _sJobCompany.dispose();
+    _pFirstName.dispose(); _pLastName.dispose(); _pEmail.dispose();
+    _pPhone.dispose(); _pOriginCity.dispose(); _pOccupation.dispose(); _pAddress.dispose();
     super.dispose();
   }
 
@@ -104,13 +90,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         uiSettings: [
           AndroidUiSettings(
-            toolbarTitle: 'Crop Image',
+            toolbarTitle: 'SECURE IMAGE CROP',
             toolbarColor: AppConstants.backgroundColor,
-            toolbarWidgetColor: Colors.white,
+            toolbarWidgetColor: AppConstants.goldColor,
+            activeControlsWidgetColor: AppConstants.goldColor,
             initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: true,
           ),
-          IOSUiSettings(title: 'Crop Image'),
+          IOSUiSettings(title: 'SECURE IMAGE CROP'),
         ],
       );
 
@@ -124,32 +111,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppConstants.surfaceCard,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 8),
-          ListTile(
-            leading: const Icon(Icons.camera_alt, color: AppConstants.primaryColor),
-            title: const Text('Camera', style: TextStyle(color: AppConstants.textPrimary)),
-            onTap: () { Navigator.pop(ctx); _pickImage(ImageSource.camera); },
-          ),
-          ListTile(
-            leading: const Icon(Icons.photo_library, color: AppConstants.primaryColor),
-            title: const Text('Gallery', style: TextStyle(color: AppConstants.textPrimary)),
-            onTap: () { Navigator.pop(ctx); _pickImage(ImageSource.gallery); },
-          ),
-          if (context.read<ProfileProvider>().localPhotoPath != null || context.read<AuthProvider>().user?.photoUrl.isNotEmpty == true)
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('UPDATE IDENTITY IMAGE', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppConstants.goldColor, letterSpacing: 1.5)),
+            const SizedBox(height: 24),
             ListTile(
-              leading: const Icon(Icons.delete, color: AppConstants.errorColor),
-              title: const Text('Remove Photo', style: TextStyle(color: AppConstants.errorColor)),
-              onTap: () {
-                Navigator.pop(ctx);
-                context.read<ProfileProvider>().setLocalPhotoPath(''); // Placeholder for remove
-              },
+              leading: const Icon(Icons.camera_alt_rounded, color: AppConstants.goldColor),
+              title: const Text('CAPTURE WITH CAMERA', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppConstants.textPrimary)),
+              onTap: () { Navigator.pop(ctx); _pickImage(ImageSource.camera); },
             ),
-          const SizedBox(height: 16),
-        ],
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded, color: AppConstants.goldColor),
+              title: const Text('SELECT FROM ARCHIVE', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppConstants.textPrimary)),
+              onTap: () { Navigator.pop(ctx); _pickImage(ImageSource.gallery); },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
@@ -160,16 +142,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final profProv = context.read<ProfileProvider>();
       final user = authProv.user;
       if (user == null) return;
-
-      final updatedParent = ParentDetails(
-        firstName: _pFirstName.text.trim(),
-        lastName: _pLastName.text.trim(),
-        emailId: _pEmail.text.trim(),
-        phoneNumber: _pPhone.text.trim(),
-        originCity: _pOriginCity.text.trim(),
-        occupation: _pOccupation.text.trim(),
-        address: _pAddress.text.trim(),
-      );
 
       final updatedUser = user.copyWith(
         firstName: _sFirstName.text.trim(),
@@ -185,16 +157,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         collegeName: _sCollege.text.trim(),
         jobType: _jobType,
         jobCompany: _sJobCompany.text.trim(),
-        parentDetails: updatedParent,
+        parentDetails: user.parentDetails.copyWith(
+          firstName: _pFirstName.text.trim(),
+          lastName: _pLastName.text.trim(),
+          emailId: _pEmail.text.trim(),
+          phoneNumber: _pPhone.text.trim(),
+          originCity: _pOriginCity.text.trim(),
+          occupation: _pOccupation.text.trim(),
+          address: _pAddress.text.trim(),
+        ),
       );
 
       await profProv.saveProfile(updatedUser);
-      authProv.updateLocalUser(profProv.user!); // Sync back to auth
+      authProv.updateLocalUser(profProv.user!);
       
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully'), backgroundColor: AppConstants.successColor),
+          const SnackBar(content: Text('Identity protocols updated successfully'), backgroundColor: AppConstants.primaryColor),
         );
       }
     }
@@ -208,86 +188,74 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       backgroundColor: AppConstants.backgroundColor,
       appBar: AppBar(
-        title: const Text('Edit Profile'),
-        backgroundColor: AppConstants.backgroundColor,
-        elevation: 0,
+        title: const Text('UPDATE IDENTITY', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 16)),
         actions: [
           TextButton(
             onPressed: profProv.isSaving ? null : _saveProfile,
-            child: const Text('Save', style: TextStyle(color: AppConstants.primaryColor, fontWeight: FontWeight.bold, fontSize: 16)),
+            child: const Text('SAVE', style: TextStyle(color: AppConstants.goldColor, fontWeight: FontWeight.w900, letterSpacing: 1)),
           ),
         ],
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(AppConstants.paddingLg),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           children: [
-            // Profile Photo
             Center(
               child: Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: AppConstants.surfaceCardLight,
-                    backgroundImage: profProv.localPhotoPath != null && profProv.localPhotoPath!.isNotEmpty
-                        ? FileImage(File(profProv.localPhotoPath!)) as ImageProvider
-                        : (authProv.user?.photoUrl.isNotEmpty == true ? NetworkImage(authProv.user!.photoUrl) : null),
-                    child: (profProv.localPhotoPath == null || profProv.localPhotoPath!.isEmpty) && (authProv.user?.photoUrl.isEmpty ?? true)
-                        ? const Icon(Icons.person, size: 60, color: AppConstants.textMuted)
-                        : null,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: _showImagePickerOptions,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppConstants.primaryColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppConstants.backgroundColor, width: 2),
-                        ),
-                        child: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
-                      ),
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(shape: BoxShape.circle, gradient: AppConstants.premiumGradient),
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundColor: AppConstants.primaryDark,
+                      backgroundImage: profProv.localPhotoPath != null && profProv.localPhotoPath!.isNotEmpty
+                          ? FileImage(File(profProv.localPhotoPath!)) as ImageProvider
+                          : (authProv.user?.photoUrl.isNotEmpty == true ? NetworkImage(authProv.user!.photoUrl) : null),
+                      child: (profProv.localPhotoPath == null || profProv.localPhotoPath!.isEmpty) && (authProv.user?.photoUrl.isEmpty ?? true)
+                          ? const Icon(Icons.person_rounded, size: 60, color: AppConstants.goldColor)
+                          : null,
                     ),
                   ),
-                  if (profProv.isUploading)
-                    const Positioned.fill(
-                      child: Center(child: CircularProgressIndicator(color: AppConstants.primaryColor)),
+                  Positioned(bottom: 5, right: 5, child: GestureDetector(
+                    onTap: _showImagePickerOptions,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(color: AppConstants.goldColor, shape: BoxShape.circle),
+                      child: const Icon(Icons.camera_alt_rounded, size: 18, color: AppConstants.backgroundColor),
                     ),
+                  )),
                 ],
               ),
             ),
-            const SizedBox(height: 32),
-
-            _buildSectionHeader('Student Details'),
-            _buildTextField('First Name', _sFirstName),
-            _buildTextField('Middle Name', _sMiddleName, required: false),
-            _buildTextField('Last Name', _sLastName),
-            _buildTextField('Email', _sEmail, keyboardType: TextInputType.emailAddress),
-            _buildTextField('Phone', _sPhone, keyboardType: TextInputType.phone),
-            _buildTextField('Origin City', _sOriginCity),
-            _buildTextField('Migrated City', _sMigratedCity),
-            _buildTextField('Migrated Country', _sMigratedCountry),
-            _buildTextField('Education Course', _sEduCourse),
-            _buildTextField('Specialization', _sSpecialization),
-            _buildTextField('College', _sCollege),
-            _buildDropdown('Job Type', ['None', 'Part-time', 'Full-time'], _jobType, (val) => setState(() => _jobType = val!)),
-            _buildTextField('Job Company', _sJobCompany, required: false),
-            
-            const SizedBox(height: 24),
-            _buildSectionHeader('Parent Details'),
-            _buildTextField('Parent First Name', _pFirstName),
-            _buildTextField('Parent Last Name', _pLastName),
-            _buildTextField('Parent Email', _pEmail, keyboardType: TextInputType.emailAddress),
-            _buildTextField('Parent Phone', _pPhone, keyboardType: TextInputType.phone),
-            _buildTextField('Parent Origin City', _pOriginCity),
-            _buildTextField('Occupation', _pOccupation),
-            _buildTextField('Address', _pAddress, maxLines: 2),
-            
             const SizedBox(height: 40),
+            _buildSectionHeader('STUDENT IDENTITY'),
+            _buildTextField('FIRST NAME', _sFirstName),
+            _buildTextField('MIDDLE NAME', _sMiddleName, required: false),
+            _buildTextField('LAST NAME', _sLastName),
+            _buildTextField('ACADEMIC EMAIL', _sEmail, keyboardType: TextInputType.emailAddress),
+            _buildTextField('SECURE PHONE', _sPhone, keyboardType: TextInputType.phone),
+            _buildTextField('ORIGIN CITY', _sOriginCity),
+            _buildTextField('CURRENT CITY', _sMigratedCity),
+            _buildTextField('CURRENT COUNTRY', _sMigratedCountry),
+            _buildTextField('ACADEMIC COURSE', _sEduCourse),
+            _buildTextField('SPECIALIZATION', _sSpecialization),
+            _buildTextField('COLLEGE NAME', _sCollege),
+            _buildDropdown('PROFESSIONAL STATUS', ['None', 'Part-time', 'Full-time'], _jobType, (val) => setState(() => _jobType = val!)),
+            _buildTextField('ORGANIZATION', _sJobCompany, required: false),
+            
+            const SizedBox(height: 32),
+            _buildSectionHeader('GUARDIAN PROTOCOL'),
+            _buildTextField('GUARDIAN FIRST NAME', _pFirstName),
+            _buildTextField('GUARDIAN LAST NAME', _pLastName),
+            _buildTextField('GUARDIAN EMAIL', _pEmail, keyboardType: TextInputType.emailAddress),
+            _buildTextField('EMERGENCY PHONE', _pPhone, keyboardType: TextInputType.phone),
+            _buildTextField('GUARDIAN ORIGIN', _pOriginCity),
+            _buildTextField('OCCUPATION', _pOccupation),
+            _buildTextField('RESIDENTIAL ADDRESS', _pAddress, maxLines: 2),
+            
+            const SizedBox(height: 60),
           ],
         ),
       ),
@@ -296,50 +264,58 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16, top: 8),
-      child: Text(
-        title.toUpperCase(),
-        style: const TextStyle(color: AppConstants.primaryColor, fontWeight: FontWeight.bold, fontSize: 13, letterSpacing: 1.2),
+      padding: const EdgeInsets.only(bottom: 24, top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(color: AppConstants.goldColor, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 2)),
+          const SizedBox(height: 8),
+          Container(height: 1, width: 60, decoration: const BoxDecoration(color: AppConstants.goldColor)),
+        ],
       ),
     );
   }
 
   Widget _buildTextField(String label, TextEditingController controller, {bool required = true, TextInputType keyboardType = TextInputType.text, int maxLines = 1}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 20),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
         maxLines: maxLines,
-        style: const TextStyle(color: AppConstants.textPrimary, fontSize: 15),
+        style: const TextStyle(color: AppConstants.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
         decoration: InputDecoration(
           labelText: label,
           floatingLabelBehavior: FloatingLabelBehavior.always,
-          labelStyle: const TextStyle(color: AppConstants.textSecondary),
+          labelStyle: const TextStyle(color: AppConstants.goldColor, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
           filled: true,
           fillColor: AppConstants.surfaceCard,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppConstants.goldColor, width: 1)),
         ),
-        validator: required ? (val) => (val == null || val.isEmpty) ? 'Required' : null : null,
+        validator: required ? (val) => (val == null || val.isEmpty) ? 'REQUIRED' : null : null,
       ),
     );
   }
 
   Widget _buildDropdown(String label, List<String> items, String value, Function(String?) onChanged) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 20),
       child: DropdownButtonFormField<String>(
         value: value,
         dropdownColor: AppConstants.surfaceCard,
         onChanged: onChanged,
-        style: const TextStyle(color: AppConstants.textPrimary, fontSize: 15),
+        style: const TextStyle(color: AppConstants.textPrimary, fontSize: 14, fontWeight: FontWeight.w600),
         decoration: InputDecoration(
           labelText: label,
           floatingLabelBehavior: FloatingLabelBehavior.always,
-          labelStyle: const TextStyle(color: AppConstants.textSecondary),
+          labelStyle: const TextStyle(color: AppConstants.goldColor, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1),
           filled: true,
           fillColor: AppConstants.surfaceCard,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
         ),
         items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
       ),

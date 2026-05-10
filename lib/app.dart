@@ -19,9 +19,6 @@ import 'package:peerconnect/screens/about_screen.dart';
 import 'package:peerconnect/utils/constants.dart';
 
 /// Root widget of the GuardianNet application.
-///
-/// Sets up Provider at the top of the widget tree and
-/// defines named routes for navigation.
 class GuardianNetApp extends StatefulWidget {
   const GuardianNetApp({super.key});
 
@@ -64,73 +61,79 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
       child: MaterialApp(
         title: AppConstants.appName,
         debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.dark,
         theme: ThemeData(
           useMaterial3: true,
           brightness: Brightness.dark,
           colorScheme: const ColorScheme.dark(
-            primary: AppConstants.forestGreen,
-            secondary: AppConstants.premiumGold,
+            primary: AppConstants.primaryColor,
+            secondary: AppConstants.goldColor,
             surface: AppConstants.surfaceCard,
             onSurface: AppConstants.textPrimary,
-            onPrimary: Colors.white,
+            onPrimary: AppConstants.textPrimary,
+            onSecondary: AppConstants.backgroundColor,
             error: AppConstants.errorColor,
           ),
           scaffoldBackgroundColor: AppConstants.backgroundColor,
           textTheme: GoogleFonts.plusJakartaSansTextTheme(
-            ThemeData.dark().textTheme,
+            ThemeData.dark().textTheme.apply(
+              bodyColor: AppConstants.textPrimary,
+              displayColor: AppConstants.textPrimary,
+            ),
           ),
           appBarTheme: const AppBarTheme(
-            backgroundColor: AppConstants.surfaceCard,
+            backgroundColor: AppConstants.backgroundColor,
             foregroundColor: AppConstants.textPrimary,
             centerTitle: false,
             elevation: 0,
+            iconTheme: IconThemeData(color: AppConstants.goldColor),
           ),
           textSelectionTheme: const TextSelectionThemeData(
-            cursorColor: AppConstants.premiumGold,
+            cursorColor: AppConstants.goldColor,
             selectionColor: Color(0x4DD4A017),
-            selectionHandleColor: AppConstants.premiumGold,
+            selectionHandleColor: AppConstants.goldColor,
           ),
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
-            fillColor: AppConstants.surfaceCardLight,
-            labelStyle: const TextStyle(color: AppConstants.textSecondary),
+            fillColor: AppConstants.surfaceCard,
             hintStyle: const TextStyle(color: AppConstants.textMuted),
+            labelStyle: const TextStyle(color: AppConstants.textSecondary),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
-              borderSide: const BorderSide(color: Colors.white10),
+              borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
-              borderSide: const BorderSide(color: AppConstants.premiumGold, width: 1.5),
+              borderSide: const BorderSide(color: AppConstants.goldColor, width: 1),
             ),
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppConstants.primaryColor,
-              foregroundColor: Colors.white,
+              foregroundColor: AppConstants.textPrimary,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
               ),
+              textStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1),
             ),
           ),
           bottomNavigationBarTheme: const BottomNavigationBarThemeData(
             type: BottomNavigationBarType.fixed,
-            selectedItemColor: AppConstants.premiumGold,
-            unselectedItemColor: Colors.white30,
-            backgroundColor: AppConstants.surfaceCard,
+            selectedItemColor: AppConstants.goldColor,
+            unselectedItemColor: AppConstants.textMuted,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
           ),
           cardTheme: CardThemeData(
             color: AppConstants.surfaceCard,
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppConstants.borderRadiusMd),
-              side: const BorderSide(color: Colors.white10),
+              borderRadius: BorderRadius.circular(AppConstants.borderRadiusLg),
+              side: BorderSide(color: AppConstants.textPrimary.withValues(alpha: 0.05)),
             ),
           ),
         ),
@@ -152,30 +155,43 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
                   : (auth.user?.email ?? '');
 
               return Scaffold(
+                extendBodyBehindAppBar: true,
+                extendBody: true,
                 appBar: AppBar(
-                  backgroundColor: AppConstants.surfaceCard,
+                  backgroundColor: AppConstants.backgroundColor.withValues(alpha: 0.8),
+                  flexibleSpace: ClipRect(
+                    child: BackdropFilter(
+                      filter: ColorFilter.mode(Colors.black.withValues(alpha: 0.1), BlendMode.darken),
+                      child: Container(color: Colors.transparent),
+                    ),
+                  ),
                   elevation: 0,
-                  iconTheme: const IconThemeData(color: AppConstants.secondaryColor),
+                  iconTheme: const IconThemeData(color: AppConstants.goldColor),
                   title: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: AppConstants.goldShadow,
+                        ),
                         child: Image.asset(
                           'assets/Final_profile_logo.png',
-                          width: 38,
-                          height: 38,
+                          width: 28,
+                          height: 28,
                           fit: BoxFit.contain,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 12),
                       const Text(
-                        AppConstants.appName,
+                        'GUARDIAN NET',
                         style: TextStyle(
                           color: AppConstants.textPrimary,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.8,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2.0,
                         ),
                       ),
                     ],
@@ -187,31 +203,7 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
                   children: _pages,
                 ),
                 drawer: _buildDrawer(context, auth, profileProv, displayName, displayEmail),
-                bottomNavigationBar: BottomNavigationBar(
-                  type: BottomNavigationBarType.fixed,
-                  showSelectedLabels: true,
-                  showUnselectedLabels: true,
-                  items: const <BottomNavigationBarItem>[
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.home),
-                      label: 'Home',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.people),
-                      label: 'Connections',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.help),
-                      label: 'Help',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.person),
-                      label: 'Profile',
-                    ),
-                  ],
-                  currentIndex: _selectedIndex,
-                  onTap: _onItemTapped,
-                ),
+                bottomNavigationBar: _buildPremiumNavBar(),
               );
             },
           ),
@@ -220,104 +212,111 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
     );
   }
 
+  Widget _buildPremiumNavBar() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      decoration: BoxDecoration(
+        color: AppConstants.surfaceCard.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.grid_view_rounded),
+              label: 'Dashboard',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.hub_rounded),
+              label: 'Network',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.star_rounded),
+              label: 'Opportunities',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_rounded),
+              label: 'Identity',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedFontSize: 10,
+          unselectedFontSize: 10,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 0.5),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDrawer(BuildContext context, AuthProvider auth, ProfileProvider profileProv, String displayName, String displayEmail) {
     return Drawer(
-      backgroundColor: AppConstants.surfaceCard,
+      backgroundColor: AppConstants.backgroundColor,
       child: Column(
         children: [
-          // ── Drawer Header ──
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(24, 60, 24, 28),
+            padding: const EdgeInsets.fromLTRB(28, 80, 28, 40),
             decoration: const BoxDecoration(
-              gradient: AppConstants.navyGradient,
+              gradient: LinearGradient(
+                colors: [AppConstants.primaryDark, AppConstants.navyAccent],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // App Logo
                 Container(
-                  width: 90,
-                  height: 90,
+                  width: 80,
+                  height: 80,
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppConstants.primaryColor.withValues(alpha: 0.4),
-                        blurRadius: 20,
-                        spreadRadius: 4,
-                      ),
-                    ],
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: AppConstants.goldShadow,
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(22),
-                    child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
-                  ),
+                  child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
                 ),
-                const SizedBox(height: 16),
-                // App Name
+                const SizedBox(height: 24),
                 const Text(
-                  AppConstants.appName,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: AppConstants.textPrimary,
-                    letterSpacing: 1.0,
-                  ),
+                  'GUARDIAN NET',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppConstants.textPrimary, letterSpacing: 2),
                 ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Trusted guardian connections',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppConstants.textSecondary,
-                  ),
+                Text(
+                  'THE ELITE PROFESSIONAL NETWORK',
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppConstants.goldColor.withValues(alpha: 0.8), letterSpacing: 1),
                 ),
-                const SizedBox(height: 16),
-                // Gold divider
-                Container(
-                  height: 1,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppConstants.secondaryColor.withValues(alpha: 0.0),
-                        AppConstants.secondaryColor,
-                        AppConstants.secondaryColor.withValues(alpha: 0.0),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // User info
+                const SizedBox(height: 32),
                 Row(
                   children: [
                     CircleAvatar(
                       radius: 24,
-                      backgroundColor: AppConstants.primaryColor,
+                      backgroundColor: AppConstants.goldColor,
                       backgroundImage: profileProv.localPhotoPath != null
                           ? FileImage(File(profileProv.localPhotoPath!)) as ImageProvider
                           : null,
                       child: profileProv.localPhotoPath == null
-                          ? Text(
-                              displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                            )
+                          ? Text(displayName[0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppConstants.backgroundColor))
                           : null,
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            displayName,
-                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppConstants.textPrimary),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Text(
-                            displayEmail,
-                            style: const TextStyle(fontSize: 12, color: AppConstants.textSecondary),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          Text(displayName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppConstants.textPrimary)),
+                          Text(displayEmail, style: const TextStyle(fontSize: 12, color: AppConstants.textSecondary), overflow: TextOverflow.ellipsis),
                         ],
                       ),
                     ),
@@ -326,56 +325,53 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
               ],
             ),
           ),
-
-          // ── Drawer Items ──
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
               children: [
-                _drawerItem(Icons.home_rounded, 'Home', () {
+                _drawerItem(Icons.grid_view_rounded, 'DASHBOARD', () {
                   Navigator.pop(context);
                   _onItemTapped(0);
                 }),
-                _drawerItem(Icons.people_rounded, 'Connections', () {
+                _drawerItem(Icons.hub_rounded, 'GLOBAL NETWORK', () {
                   Navigator.pop(context);
                   _onItemTapped(1);
                 }),
-                _drawerItem(Icons.help_outline_rounded, 'Help & Support', () {
+                _drawerItem(Icons.star_rounded, 'OPPORTUNITIES', () {
                   Navigator.pop(context);
                   _onItemTapped(2);
                 }),
-                _drawerItem(Icons.person_rounded, 'Profile', () {
+                _drawerItem(Icons.person_rounded, 'SECURE IDENTITY', () {
                   Navigator.pop(context);
                   _onItemTapped(3);
                 }),
-                const Divider(color: AppConstants.lightSand, indent: 16, endIndent: 16),
-                _drawerItem(Icons.privacy_tip_outlined, 'Privacy Policy', () {
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                  child: Divider(color: AppConstants.primaryDark, height: 1),
+                ),
+                _drawerItem(Icons.shield_rounded, 'PRIVACY PROTOCOL', () {
                   Navigator.pop(context);
                   Navigator.pushNamed(context, '/privacy');
                 }),
-                _drawerItem(
-                  Icons.logout_rounded,
-                  'Log Out',
-                  () {
-                    Navigator.pop(context);
-                    auth.signOut().then((_) {
-                      if (context.mounted) {
-                        Navigator.of(context).pushReplacementNamed('/login');
-                      }
-                    });
-                  },
-                  color: AppConstants.errorColor,
-                ),
+                _drawerItem(Icons.info_rounded, 'ABOUT GUARDIAN', () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/about');
+                }),
+                const SizedBox(height: 40),
+                _drawerItem(Icons.logout_rounded, 'LOG OUT SESSION', () {
+                  Navigator.pop(context);
+                  auth.signOut().then((_) {
+                    if (context.mounted) Navigator.of(context).pushReplacementNamed('/login');
+                  });
+                }, color: Colors.redAccent),
               ],
             ),
           ),
-
-          // ── Footer ──
           Padding(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: const EdgeInsets.only(bottom: 40),
             child: Text(
-              '${AppConstants.appName} v1.0.0',
-              style: TextStyle(fontSize: 12, color: AppConstants.textMuted.withValues(alpha: 0.6)),
+              'GUARDIAN NET ELITE v1.0.0',
+              style: TextStyle(fontSize: 10, color: AppConstants.textMuted, fontWeight: FontWeight.bold, letterSpacing: 1),
             ),
           ),
         ],
@@ -385,18 +381,19 @@ class _GuardianNetAppState extends State<GuardianNetApp> {
 
   Widget _drawerItem(IconData icon, String label, VoidCallback onTap, {Color? color}) {
     return ListTile(
-      leading: Icon(icon, color: color ?? AppConstants.accentColor, size: 22),
+      leading: Icon(icon, color: color ?? AppConstants.goldColor, size: 20),
       title: Text(
         label,
         style: TextStyle(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
+          fontSize: 13,
+          fontWeight: FontWeight.w900,
           color: color ?? AppConstants.textPrimary,
+          letterSpacing: 1,
         ),
       ),
       onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      horizontalTitleGap: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
     );
   }
 }

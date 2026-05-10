@@ -5,9 +5,6 @@ import 'package:peerconnect/providers/profile_provider.dart';
 import 'package:peerconnect/utils/constants.dart';
 
 /// Splash screen displayed on app launch.
-///
-/// Shows [logo_appearing_while_opening.png] full-screen, holds for 3 seconds,
-/// then fades out and routes to the appropriate screen.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -18,34 +15,26 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-
-  // Fade-in over 600 ms, hold, then fade-out over 600 ms at the end.
-  late Animation<double> _fadeIn;
-  late Animation<double> _fadeOut;
+  late Animation<double> _scale;
+  late Animation<double> _opacity;
 
   @override
   void initState() {
     super.initState();
 
-    // Total duration = 3 seconds
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 3000),
+      duration: const Duration(milliseconds: 2500),
     );
 
-    // Fade-in: 0 → 1 during first 20% (0–600 ms)
-    _fadeIn = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.20, curve: Curves.easeIn),
-      ),
+    _scale = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
 
-    // Fade-out: 1 → 0 during last 20% (2400–3000 ms)
-    _fadeOut = Tween<double>(begin: 1.0, end: 0.0).animate(
+    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.80, 1.0, curve: Curves.easeOut),
+        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
       ),
     );
 
@@ -56,12 +45,10 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
     final authProvider = context.read<AuthProvider>();
     
-    // Wait for auth to initialize (max 5 seconds)
-    int count = 0;
-    while (authProvider.status == AuthStatus.uninitialized && count < 10) {
-      await Future.delayed(const Duration(milliseconds: 500));
-      count++;
-    }
+    // Allow minimal time for auth status to settle
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!mounted) return;
 
     if (authProvider.isAuthenticated) {
       if (authProvider.user != null) {
@@ -86,63 +73,64 @@ class _SplashScreenState extends State<SplashScreen>
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: AppConstants.navyGradient,
+          gradient: LinearGradient(
+            colors: [AppConstants.primaryDark, AppConstants.navyAccent],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            final opacity = _fadeIn.value * _fadeOut.value;
-            return Opacity(
-              opacity: opacity,
-              child: child,
-            );
-          },
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: 180,
-                      height: 180,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppConstants.premiumGold.withValues(alpha: 0.15),
-                            blurRadius: 50,
-                            spreadRadius: 20,
-                          ),
-                        ],
-                      ),
-                    ),
-                    Image.asset(
-                      'assets/Final_profile_logo.png',
-                      width: 150,
-                      height: 150,
-                      fit: BoxFit.contain,
-                    ),
-                  ],
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Opacity(
+                opacity: _opacity.value,
+                child: Transform.scale(
+                  scale: _scale.value,
+                  child: child,
                 ),
-                const SizedBox(height: 40),
+              );
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 180,
+                  height: 180,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppConstants.goldColor.withValues(alpha: 0.2),
+                        blurRadius: 40,
+                        spreadRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Image.asset(
+                    'assets/Final_profile_logo.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 32),
                 const Text(
-                  AppConstants.appName,
+                  'GUARDIAN NET',
                   style: TextStyle(
                     fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: AppConstants.warmBeige,
-                    letterSpacing: 1.5,
+                    fontWeight: FontWeight.w900,
+                    color: AppConstants.textPrimary,
+                    letterSpacing: 4,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  AppConstants.appTagline,
+                Text(
+                  'SECURE • TRUSTED • ELITE',
                   style: TextStyle(
-                    fontSize: 14,
-                    color: AppConstants.lightSand,
-                    letterSpacing: 1.2,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: AppConstants.goldColor.withValues(alpha: 0.8),
+                    letterSpacing: 2,
                   ),
                 ),
               ],
