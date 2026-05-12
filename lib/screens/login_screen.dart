@@ -17,19 +17,23 @@ class _LoginScreenState extends State<LoginScreen>
   late Animation<double> _fade;
   late Animation<Offset> _slide;
 
+  bool _hasNavigated = false;
+
   @override
   void initState() {
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1200),
     );
-    _fade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _ctrl, curve: const Interval(0.2, 1.0, curve: Curves.easeIn)),
-    );
-    _slide = Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
-      CurvedAnimation(parent: _ctrl, curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic)),
-    );
+    _fade = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _slide = Tween<Offset>(
+      begin: const Offset(0, 0.25),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
     _ctrl.forward();
   }
 
@@ -46,16 +50,13 @@ class _LoginScreenState extends State<LoginScreen>
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppConstants.backgroundColor, AppConstants.primaryDark],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+          gradient: AppConstants.backgroundGradient,
         ),
         child: Consumer<AuthProvider>(
           builder: (ctx, auth, _) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (auth.isAuthenticated && auth.user != null) {
+              if (mounted && !_hasNavigated && auth.isAuthenticated && auth.user != null) {
+                _hasNavigated = true;
                 Provider.of<ProfileProvider>(context, listen: false).setUser(auth.user!);
                 if (auth.user!.role != UserRole.none) {
                   Navigator.of(context).pushReplacementNamed('/main');
@@ -66,57 +67,63 @@ class _LoginScreenState extends State<LoginScreen>
             });
             return SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Column(
-                  children: [
-                    const Spacer(flex: 2),
-                    FadeTransition(opacity: _fade, child: _logo()),
-                    const SizedBox(height: 32),
-                    SlideTransition(
-                      position: _slide,
-                      child: FadeTransition(
-                        opacity: _fade,
-                        child: Column(
-                          children: [
-                            const Text(
-                              AppConstants.appName,
-                              style: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w900,
-                                color: AppConstants.textPrimary,
-                                letterSpacing: 2,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'The Secure Professional Network',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppConstants.goldColor.withValues(alpha: 0.8),
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ],
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: SlideTransition(
+                  position: _slide,
+                  child: FadeTransition(
+                    opacity: _fade,
+                    child: Column(
+                      children: [
+                        const Spacer(flex: 2),
+                        _logo(),
+                        const SizedBox(height: 24),
+                        const Text(
+                          AppConstants.appName,
+                          style: TextStyle(
+                            fontSize: 34,
+                            fontWeight: FontWeight.w700,
+                            color: AppConstants.textPrimary,
+                            letterSpacing: 1.2,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          AppConstants.appTagline,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: AppConstants.textSecondary,
+                          ),
+                        ),
+                        const Spacer(flex: 2),
+                        _feat(Icons.verified_user_rounded, 'Trusted Guardian Profiles'),
+                        const SizedBox(height: 14),
+                        _feat(Icons.handshake_rounded, 'Secure Support Connections'),
+                        const SizedBox(height: 14),
+                        _feat(
+                          Icons.safety_check_rounded,
+                          'Simple and Private Experience',
+                        ),
+                        const Spacer(flex: 2),
+                        if (auth.errorMessage != null) ...[
+                          _errorBanner(auth),
+                          const SizedBox(height: 16),
+                        ],
+                        _googleBtn(auth),
+                        const SizedBox(height: 20),
+                        Text(
+                          'By continuing, you agree to our Terms and Privacy Policy.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppConstants.textMuted.withValues(
+                              alpha: 0.7,
+                            ),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const Spacer(),
+                      ],
                     ),
-                    const Spacer(flex: 2),
-                    _featList(),
-                    const Spacer(flex: 2),
-                    if (auth.errorMessage != null) ...[
-                      _errorBanner(auth),
-                      const SizedBox(height: 16),
-                    ],
-                    _googleBtn(auth),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'By continuing, you agree to our Terms and Privacy Policy.',
-                      style: TextStyle(fontSize: 11, color: AppConstants.textMuted),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                  ),
                 ),
               ),
             );
@@ -127,74 +134,84 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _logo() => Container(
-    width: 140,
-    height: 140,
+    width: 120,
+    height: 120,
     decoration: BoxDecoration(
-      color: AppConstants.surfaceCard,
       shape: BoxShape.circle,
-      border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.3), width: 2),
       boxShadow: [
         BoxShadow(
-          color: AppConstants.goldColor.withValues(alpha: 0.2),
-          blurRadius: 40,
-          spreadRadius: 5,
+          color: AppConstants.primaryColor.withValues(alpha: 0.3),
+          blurRadius: 30,
+          spreadRadius: 4,
         ),
       ],
     ),
-    child: Padding(
-      padding: const EdgeInsets.all(24),
-      child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
+    child: CircleAvatar(
+      backgroundColor: Colors.white,
+      radius: 60,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
+      ),
     ),
   );
 
-  Widget _featList() => Column(
+  Widget _feat(IconData ic, String txt) => Row(
     children: [
-      _feat(Icons.shield_rounded, 'Premium Security Protocol'),
-      const SizedBox(height: 16),
-      _feat(Icons.workspace_premium_rounded, 'Elite Community Network'),
-      const SizedBox(height: 16),
-      _feat(Icons.verified_user_rounded, 'Verified Guardian Protection'),
+      Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppConstants.surfaceCard,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppConstants.primaryColor.withValues(alpha: 0.2),
+          ),
+        ),
+        child: Icon(ic, color: AppConstants.accentColor, size: 20),
+      ),
+      const SizedBox(width: 14),
+      Text(
+        txt,
+        style: const TextStyle(
+          color: AppConstants.textSecondary,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     ],
   );
 
-  Widget _feat(IconData ic, String txt) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: AppConstants.surfaceCard.withValues(alpha: 0.5),
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.1)),
-    ),
-    child: Row(
-      children: [
-        Icon(ic, color: AppConstants.goldColor, size: 22),
-        const SizedBox(width: 16),
-        Text(
-          txt,
-          style: const TextStyle(
-            color: AppConstants.textPrimary,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
-    ),
-  );
-
   Widget _errorBanner(AuthProvider a) => Container(
-    padding: const EdgeInsets.all(12),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     decoration: BoxDecoration(
-      color: AppConstants.errorColor.withValues(alpha: 0.1),
+      color: AppConstants.errorColor.withValues(alpha: 0.12),
       borderRadius: BorderRadius.circular(12),
       border: Border.all(color: AppConstants.errorColor.withValues(alpha: 0.3)),
     ),
     child: Row(
       children: [
-        const Icon(Icons.error_outline, color: Colors.redAccent, size: 18),
+        const Icon(
+          Icons.error_outline,
+          color: AppConstants.errorColor,
+          size: 20,
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             a.errorMessage!,
-            style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+            style: const TextStyle(
+              color: AppConstants.errorColor,
+              fontSize: 13,
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: a.clearError,
+          child: const Icon(
+            Icons.close,
+            color: AppConstants.errorColor,
+            size: 18,
           ),
         ),
       ],
@@ -203,38 +220,68 @@ class _LoginScreenState extends State<LoginScreen>
 
   Widget _googleBtn(AuthProvider a) {
     final loading = a.status == AuthStatus.authenticating;
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      height: 60,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: AppConstants.goldShadow,
-      ),
+      height: 56,
       child: ElevatedButton(
         onPressed: loading ? null : () => a.signInWithGoogle(),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppConstants.primaryColor,
+          backgroundColor: AppConstants.surfaceCard,
           foregroundColor: AppConstants.textPrimary,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: AppConstants.primaryColor.withValues(alpha: 0.3),
+            ),
+          ),
         ),
         child: loading
-            ? const CircularProgressIndicator(color: AppConstants.textPrimary)
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation(AppConstants.primaryColor),
+                ),
+              )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
-                    child: Image.network(
-                      'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png',
-                      height: 20,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.login_rounded, size: 18, color: Colors.blue),
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'G',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          foreground: Paint()
+                            ..shader = const LinearGradient(
+                              colors: [
+                                Color(0xFF4285F4),
+                                Color(0xFF34A853),
+                                Color(0xFFFBBC05),
+                                Color(0xFFEA4335),
+                              ],
+                            ).createShader(const Rect.fromLTWH(0, 0, 20, 20)),
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 14),
                   const Text(
-                    'SIGN IN WITH GOOGLE',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: 1),
+                    'Sign in with Google',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
                   ),
                 ],
               ),

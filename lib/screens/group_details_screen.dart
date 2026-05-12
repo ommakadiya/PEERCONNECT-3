@@ -139,7 +139,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(color: AppConstants.surfaceCardLight, borderRadius: BorderRadius.circular(12)),
-                          child: Text(_currentGroup.similarityCategory, style: const TextStyle(fontSize: 12, color: AppConstants.goldColor)),
+                          child: Text(_currentGroup.similarityCategory, style: const TextStyle(fontSize: 12, color: AppConstants.primaryColor)),
                         )
                       ],
                       if (!isMember && _currentGroup.groupType == 'manual') ...[

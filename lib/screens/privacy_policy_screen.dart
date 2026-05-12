@@ -48,7 +48,13 @@ class PrivacyPolicyScreen extends StatelessWidget {
             
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  Navigator.pushReplacementNamed(context, '/role');
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppConstants.primaryColor,
                 minimumSize: const Size(double.infinity, 54),

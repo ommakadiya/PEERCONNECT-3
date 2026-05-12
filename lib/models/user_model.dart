@@ -44,26 +44,6 @@ class ParentDetails {
       'address': address,
     };
   }
-
-  ParentDetails copyWith({
-    String? firstName,
-    String? lastName,
-    String? emailId,
-    String? phoneNumber,
-    String? originCity,
-    String? occupation,
-    String? address,
-  }) {
-    return ParentDetails(
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      emailId: emailId ?? this.emailId,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      originCity: originCity ?? this.originCity,
-      occupation: occupation ?? this.occupation,
-      address: address ?? this.address,
-    );
-  }
 }
 
 class RecommendationFields {

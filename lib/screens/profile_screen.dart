@@ -15,70 +15,61 @@ class ProfileScreen extends StatelessWidget {
     final profProv = context.watch<ProfileProvider>();
     final user = authProv.user;
     
-    if (user == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (user == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       backgroundColor: AppConstants.backgroundColor,
-      body: Stack(
-        children: [
-          // Background Gradient
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppConstants.backgroundColor, AppConstants.primaryDark],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildPremiumHeader(context, user),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildPremiumHeader(context, user),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppConstants.paddingLg),
+              child: Column(
+                children: [
+                  const SizedBox(height: 24),
+                  _buildStatsSection(user),
+                  const SizedBox(height: 24),
+                  _buildSectionCard(
+                    title: 'Student Details',
+                    icon: Icons.school_rounded,
+                    onEdit: () => Navigator.pushNamed(context, '/edit-profile'),
                     children: [
-                      const SizedBox(height: 24),
-                      _buildStatsSection(user),
-                      const SizedBox(height: 32),
-                      _buildSectionCard(
-                        title: 'STUDENT IDENTITY',
-                        icon: Icons.school_rounded,
-                        onEdit: () => Navigator.pushNamed(context, '/edit-profile'),
-                        children: [
-                          _buildInfoRow(Icons.person_outline, 'Full Name', '${user.firstName} ${user.lastName}'),
-                          _buildInfoRow(Icons.email_outlined, 'Academic Email', user.email),
-                          _buildInfoRow(Icons.phone_outlined, 'Verified Phone', user.phoneNumber),
-                          _buildInfoRow(Icons.location_on_outlined, 'Home Base', user.originCity),
-                          _buildInfoRow(Icons.map_outlined, 'Global Residency', '${user.migratedCity}, ${user.migratedCountry}'),
-                          _buildInfoRow(Icons.menu_book_rounded, 'Discipline', '${user.educationCourse} (${user.specialization})'),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      _buildSectionCard(
-                        title: 'PARENTAL GUARDIAN',
-                        icon: Icons.security_rounded,
-                        onEdit: () => Navigator.pushNamed(context, '/edit-profile'),
-                        badge: 'CONNECTED',
-                        children: [
-                          _buildInfoRow(Icons.person_outline, 'Guardian Name', '${user.parentDetails.firstName} ${user.parentDetails.lastName}'),
-                          _buildInfoRow(Icons.phone_outlined, 'Emergency Contact', user.parentDetails.phoneNumber),
-                          _buildInfoRow(Icons.work_outline_rounded, 'Occupation', user.parentDetails.occupation),
-                        ],
-                      ),
-                      const SizedBox(height: 32),
-                      _buildSettingsSection(context),
-                      const SizedBox(height: 40),
-                      _buildLogoutButton(context, authProv),
-                      const SizedBox(height: 60),
+                      _buildInfoRow(Icons.person_outline, 'Full Name', '${user.firstName} ${user.lastName}'),
+                      _buildInfoRow(Icons.email_outlined, 'Email', user.email),
+                      _buildInfoRow(Icons.phone_outlined, 'Phone', user.phoneNumber),
+                      _buildInfoRow(Icons.location_on_outlined, 'Origin', user.originCity),
+                      _buildInfoRow(Icons.map_outlined, 'Current Location', '${user.migratedCity}, ${user.migratedCountry}'),
+                      _buildInfoRow(Icons.menu_book_rounded, 'Course', '${user.educationCourse} (${user.specialization})'),
+                      _buildInfoRow(Icons.apartment_rounded, 'College', user.collegeName),
+                      _buildInfoRow(Icons.work_outline_rounded, 'Job Status', '${user.jobType} at ${user.jobCompany}'),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  _buildSectionCard(
+                    title: 'Parent Details',
+                    icon: Icons.family_restroom_rounded,
+                    onEdit: () => Navigator.pushNamed(context, '/edit-profile'),
+                    badge: 'Connected',
+                    children: [
+                      _buildInfoRow(Icons.person_outline, 'Parent Name', '${user.parentDetails.firstName} ${user.parentDetails.lastName}'),
+                      _buildInfoRow(Icons.phone_outlined, 'Phone', user.parentDetails.phoneNumber),
+                      _buildInfoRow(Icons.work_outline_rounded, 'Occupation', user.parentDetails.occupation),
+                      _buildInfoRow(Icons.home_outlined, 'Home Address', user.parentDetails.address),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  _buildSettingsSection(context),
+                  const SizedBox(height: 32),
+                  _buildLogoutButton(context, authProv),
+                  const SizedBox(height: 48),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -87,58 +78,53 @@ class ProfileScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppConstants.primaryDark.withValues(alpha: 0.3),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(40)),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppConstants.primaryColor.withValues(alpha: 0.15),
+            AppConstants.backgroundColor,
+          ],
+        ),
       ),
-      padding: const EdgeInsets.fromLTRB(24, 60, 24, 30), // Reduced top and bottom padding
+      padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
       child: Column(
         children: [
           Stack(
             alignment: Alignment.center,
             children: [
               Container(
-                width: 120, // Reduced from 140
-                height: 120,
+                width: 130,
+                height: 130,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.4), width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppConstants.goldColor.withValues(alpha: 0.15),
-                      blurRadius: 20,
-                      spreadRadius: 2,
-                    ),
-                  ],
+                  border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.3), width: 2),
                 ),
               ),
               CircleAvatar(
-                radius: 56, // Adjusted for 120 container
-                backgroundColor: AppConstants.surfaceCard,
+                radius: 60,
+                backgroundColor: AppConstants.surfaceCardLight,
                 backgroundImage: user.photoUrl.isNotEmpty ? NetworkImage(user.photoUrl) : null,
                 child: user.photoUrl.isEmpty 
-                  ? const Icon(Icons.person_rounded, size: 50, color: AppConstants.goldColor)
+                  ? Text(user.firstName.isNotEmpty ? user.firstName[0].toUpperCase() : '?', 
+                      style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: AppConstants.primaryColor))
                   : null,
-              ),
-              Positioned(
-                bottom: 2,
-                right: 2,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(color: AppConstants.goldColor, shape: BoxShape.circle),
-                  child: const Icon(Icons.edit_rounded, size: 14, color: AppConstants.backgroundColor),
-                ),
               ),
             ],
           ),
-          const SizedBox(height: 16), // Reduced from 24
+          const SizedBox(height: 20),
           Text(
-            '${user.firstName} ${user.lastName}'.toUpperCase(),
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AppConstants.textPrimary, letterSpacing: 1.5),
+            '${user.firstName} ${user.lastName}',
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppConstants.textPrimary),
           ),
-          const SizedBox(height: 4), // Reduced from 8
+          const SizedBox(height: 8),
           Text(
-            user.educationCourse.toUpperCase(),
-            style: const TextStyle(fontSize: 11, color: AppConstants.goldColor, fontWeight: FontWeight.bold, letterSpacing: 1),
+            user.educationCourse.isNotEmpty ? user.educationCourse : 'Update your course',
+            style: const TextStyle(fontSize: 14, color: AppConstants.primaryColor, fontWeight: FontWeight.w500),
+          ),
+          Text(
+            '${user.migratedCity}, ${user.migratedCountry}',
+            style: const TextStyle(fontSize: 13, color: AppConstants.textSecondary),
           ),
         ],
       ),
@@ -148,11 +134,11 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildStatsSection(UserModel user) {
     return Row(
       children: [
-        _buildStatCard('Network', '${user.connectionIds.length}', Icons.hub_outlined),
+        _buildStatCard('Connections', '${user.connectionIds.length}', Icons.people_outline),
         const SizedBox(width: 12),
-        _buildStatCard('Community', '12', Icons.public_outlined),
+        _buildStatCard('Groups', '4', Icons.groups_outlined), // Placeholder
         const SizedBox(width: 12),
-        _buildStatCard('Security', 'Elite', Icons.shield_outlined),
+        _buildStatCard('Safety Score', '98%', Icons.verified_user_outlined),
       ],
     );
   }
@@ -160,18 +146,18 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildStatCard(String label, String value, IconData icon) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: AppConstants.surfaceCard,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.05)),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.1)),
         ),
         child: Column(
           children: [
-            Icon(icon, color: AppConstants.goldColor, size: 24),
-            const SizedBox(height: 12),
+            Icon(icon, color: AppConstants.primaryColor, size: 20),
+            const SizedBox(height: 8),
             Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppConstants.textPrimary)),
-            Text(label.toUpperCase(), style: const TextStyle(fontSize: 9, color: AppConstants.textSecondary, letterSpacing: 1)),
+            Text(label, style: const TextStyle(fontSize: 10, color: AppConstants.textMuted)),
           ],
         ),
       ),
@@ -189,35 +175,35 @@ class ProfileScreen extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppConstants.surfaceCard,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.1)),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppConstants.primaryColor.withValues(alpha: 0.1)),
       ),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 20, 12, 12),
             child: Row(
               children: [
-                Icon(icon, color: AppConstants.goldColor, size: 20),
+                Icon(icon, color: AppConstants.primaryColor, size: 22),
                 const SizedBox(width: 12),
-                Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: AppConstants.textPrimary, letterSpacing: 1)),
+                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppConstants.textPrimary)),
                 if (badge != null) ...[
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(color: AppConstants.goldColor.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
-                    child: Text(badge, style: const TextStyle(fontSize: 9, color: AppConstants.goldColor, fontWeight: FontWeight.bold)),
+                    decoration: BoxDecoration(color: AppConstants.successColor.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
+                    child: Text(badge, style: const TextStyle(fontSize: 10, color: AppConstants.successColor, fontWeight: FontWeight.bold)),
                   ),
                 ],
                 const Spacer(),
-                GestureDetector(
-                  onTap: onEdit,
-                  child: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppConstants.textMuted),
+                IconButton(
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit_outlined, size: 18, color: AppConstants.textSecondary),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, color: AppConstants.primaryDark),
+          const Divider(height: 1, color: AppConstants.surfaceDark),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(children: children),
@@ -229,19 +215,22 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: AppConstants.goldColor.withValues(alpha: 0.5)),
-          const SizedBox(width: 20),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: AppConstants.surfaceCardLight, borderRadius: BorderRadius.circular(10)),
+            child: Icon(icon, size: 16, color: AppConstants.secondaryColor),
+          ),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label.toUpperCase(), style: const TextStyle(fontSize: 10, color: AppConstants.textSecondary, letterSpacing: 1)),
-                const SizedBox(height: 4),
-                Text(value.isEmpty ? '—' : value, 
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppConstants.textPrimary)),
+                Text(label, style: const TextStyle(fontSize: 11, color: AppConstants.textMuted)),
+                Text(value.isEmpty ? 'Not set' : value, 
+                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppConstants.textPrimary)),
               ],
             ),
           ),
@@ -258,8 +247,9 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _buildSettingsTile(Icons.notifications_active_outlined, 'System Notifications', () {}),
-          _buildSettingsTile(Icons.lock_outline_rounded, 'Privacy & Encryption', () => Navigator.pushNamed(context, '/privacy')),
+          _buildSettingsTile(Icons.notifications_outlined, 'Notifications', () {}),
+          _buildSettingsTile(Icons.security_outlined, 'Security & Password', () {}),
+          _buildSettingsTile(Icons.privacy_tip_outlined, 'Privacy Policy', () => Navigator.pushNamed(context, '/privacy')),
           _buildSettingsTile(Icons.info_outline_rounded, 'About Guardian Net', () => Navigator.pushNamed(context, '/about')),
         ],
       ),
@@ -269,20 +259,23 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildSettingsTile(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
       onTap: onTap,
-      leading: Icon(icon, color: AppConstants.goldColor, size: 20),
-      title: Text(title, style: const TextStyle(fontSize: 14, color: AppConstants.textPrimary, fontWeight: FontWeight.w500)),
-      trailing: const Icon(Icons.chevron_right_rounded, color: AppConstants.textMuted, size: 18),
+      leading: Icon(icon, color: AppConstants.textSecondary, size: 22),
+      title: Text(title, style: const TextStyle(fontSize: 15, color: AppConstants.textPrimary)),
+      trailing: const Icon(Icons.chevron_right_rounded, color: AppConstants.textMuted),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
     );
   }
 
   Widget _buildLogoutButton(BuildContext context, AuthProvider auth) {
-    return TextButton(
+    return OutlinedButton(
       onPressed: () => _showLogoutConfirmation(context, auth),
-      child: const Text(
-        'LOG OUT OF SECURE SESSION',
-        style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1.5),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppConstants.errorColor,
+        side: const BorderSide(color: AppConstants.errorColor),
+        minimumSize: const Size(double.infinity, 56),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
+      child: const Text('Log Out', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
     );
   }
 
@@ -291,9 +284,9 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppConstants.surfaceCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Log Out', style: TextStyle(color: AppConstants.textPrimary, fontWeight: FontWeight.bold)),
-        content: const Text('Confirm you wish to terminate the current session.', style: TextStyle(color: AppConstants.textSecondary)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Log Out', style: TextStyle(color: AppConstants.textPrimary)),
+        content: const Text('Are you sure you want to log out from Guardian Net?', style: TextStyle(color: AppConstants.textSecondary)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel', style: TextStyle(color: AppConstants.textMuted))),
           TextButton(
@@ -302,7 +295,7 @@ class ProfileScreen extends StatelessWidget {
               auth.signOut();
               Navigator.of(context).pushReplacementNamed('/login');
             },
-            child: const Text('Log Out', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            child: const Text('Log Out', style: TextStyle(color: AppConstants.errorColor, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

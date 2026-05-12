@@ -54,7 +54,7 @@ class RoleSelectionScreen extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
-                    child: Image.asset('assets/app bar logo.png', fit: BoxFit.contain),
+                    child: Image.asset('assets/Final_profile_logo.png', fit: BoxFit.contain),
                   ),
                 ),
 

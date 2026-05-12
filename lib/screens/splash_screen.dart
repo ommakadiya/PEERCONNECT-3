@@ -5,6 +5,9 @@ import 'package:peerconnect/providers/profile_provider.dart';
 import 'package:peerconnect/utils/constants.dart';
 
 /// Splash screen displayed on app launch.
+///
+/// Shows [logo_appearing_while_opening.png] full-screen, holds for 3 seconds,
+/// then fades out and routes to the appropriate screen.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -15,26 +18,34 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _scale;
-  late Animation<double> _opacity;
+
+  // Fade-in over 600 ms, hold, then fade-out over 600 ms at the end.
+  late Animation<double> _fadeIn;
+  late Animation<double> _fadeOut;
 
   @override
   void initState() {
     super.initState();
 
+    // Total duration = 3 seconds
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2500),
+      duration: const Duration(milliseconds: 3000),
     );
 
-    _scale = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
-
-    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+    // Fade-in: 0 → 1 during first 20% (0–600 ms)
+    _fadeIn = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+        curve: const Interval(0.0, 0.20, curve: Curves.easeIn),
+      ),
+    );
+
+    // Fade-out: 1 → 0 during last 20% (2400–3000 ms)
+    _fadeOut = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.80, 1.0, curve: Curves.easeOut),
       ),
     );
 
@@ -45,14 +56,20 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
     final authProvider = context.read<AuthProvider>();
     
-    // Allow minimal time for auth status to settle
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (!mounted) return;
+    // Wait for auth to initialize (max 5 seconds)
+    int count = 0;
+    while (authProvider.status == AuthStatus.uninitialized && count < 10) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      count++;
+    }
 
     if (authProvider.isAuthenticated) {
       if (authProvider.user != null) {
         context.read<ProfileProvider>().setUser(authProvider.user!);
+        if (authProvider.user!.role == UserRole.none) {
+          Navigator.of(context).pushReplacementNamed('/role');
+          return;
+        }
       }
       Navigator.of(context).pushReplacementNamed('/main');
     } else {
@@ -69,74 +86,20 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppConstants.primaryDark, AppConstants.navyAccent],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Center(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              return Opacity(
-                opacity: _opacity.value,
-                child: Transform.scale(
-                  scale: _scale.value,
-                  child: child,
-                ),
-              );
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 160,
-                  height: 160,
-                  padding: const EdgeInsets.all(28),
-                  decoration: BoxDecoration(
-                    color: AppConstants.surfaceCard,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppConstants.goldColor.withValues(alpha: 0.3), width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppConstants.goldColor.withValues(alpha: 0.15),
-                        blurRadius: 40,
-                        spreadRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: Image.asset(
-                    'assets/Final_profile_logo.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                const Text(
-                  'GUARDIAN NET',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    color: AppConstants.textPrimary,
-                    letterSpacing: 4,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'SECURE • TRUSTED • ELITE',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppConstants.goldColor.withValues(alpha: 0.8),
-                    letterSpacing: 2,
-                  ),
-                ),
-              ],
-            ),
+      backgroundColor: AppConstants.backgroundColor,
+      body: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          final opacity = _fadeIn.value * _fadeOut.value;
+          return Opacity(
+            opacity: opacity,
+            child: child,
+          );
+        },
+        child: SizedBox.expand(
+          child: Image.asset(
+            'assets/new.jpeg',
+            fit: BoxFit.cover,
           ),
         ),
       ),
